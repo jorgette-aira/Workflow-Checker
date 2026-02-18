@@ -1,5 +1,5 @@
 # config.py
-N8N_WEBHOOK_URL = "https://jorgette.tail3679cb.ts.net/webhook-test/Workflow-Checker"
+N8N_WEBHOOK_URL = "https://resolute-vikki-insightfully.ngrok-free.dev/webhook-test/Workflow%20Checker"
 DEVOPS_ROLE_ID = "9988776655" # Use this if builder is not found
 
 USER_MAP = {
