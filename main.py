@@ -10,7 +10,10 @@ def main():
 
     builder_github_username = os.getenv("GITHUB_ACTOR", "Unknown_Builder")
     repo_name = os.getenv("GITHUB_REPOSITORY", "Unknown_Repo")
-    discord_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
+    
+    # 1. Fetch the relevant IDs from your config
+    user_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
+    role_id = config.DEVOPS_ROLE_ID 
 
     # TEST 2: Check if file exists
     workflow_path = "workflows/ai_agent_workflow.json"
@@ -33,11 +36,19 @@ def main():
         details = f"System Error: {str(e)}"
         print(f"❌ Error during metrics: {e}")
 
-    # 5. Send to n8n Webhook
+    # 2. Logic: Create the Mention String
+    # If passed: Mention the Role (<@&ID>)
+    # If failed: Mention the Builder (<@ID>)
+    if passed:
+        mention_target = f"<@&{role_id}>"
+    else:
+        mention_target = f"<@{user_id}>"
+
+    # 3. Send to n8n Webhook
     payload = {
         "status": "pass" if passed else "fail",
         "builder_name": builder_github_username,
-        "discord_id": discord_id,
+        "mention_target": mention_target, # We send the pre-formatted mention
         "test_results": details
     }
 
