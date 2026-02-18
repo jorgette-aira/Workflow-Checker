@@ -31,7 +31,8 @@ def main():
             
         # 4. Run the Metrics Logic (from your metrics.py)
         # Returns a boolean (passed) and a string (details)
-        passed, details = check_workflow_metrics(workflow_data)
+        # main.py snippet
+    passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
         
     except FileNotFoundError:
         passed = False
