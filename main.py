@@ -48,7 +48,7 @@ def main():
     payload = {
         "status": "pass" if passed else "fail",
         "builder_name": builder_github_username,
-        "mention_target": mention_target, # We send the pre-formatted mention
+        "mention_target": mention_target,
         "test_results": details
     }
 
