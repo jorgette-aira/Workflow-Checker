@@ -36,7 +36,7 @@ def check_structure(workflow_json):
     
     if has_error_handler:
         return True, "Structure: Error handling is present."
-    return False, "Structure: Missing an Error Trigger node (Required for Production)."
+    return False, "Structure: Missing an Error Trigger node."
 
 def run_all_metrics(workflow_json, agent_output, expected_answer):
     """
