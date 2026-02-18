@@ -39,7 +39,7 @@ def main():
         passed = False
         details = f"System Error: {str(e)}"
 
-    # 5. Send to n8n Webhook
+   # 5. Send to n8n Webhook
     payload = {
         "status": "pass" if passed else "fail",
         "builder_name": builder_github_username,
@@ -47,7 +47,21 @@ def main():
         "test_results": details
     }
 
-    requests.post(config.N8N_WEBHOOK_URL, json=payload)
+    print(f"📡 Attempting to trigger n8n at: {config.N8N_WEBHOOK_URL}")
 
-if __name__ == "__main__":
-    main()
+    try:
+        # We add a timeout so the script doesn't hang forever if ngrok is down
+        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=10)
+        
+        # This will raise an error if the status is 404, 500, etc.
+        response.raise_for_status() 
+
+        print(f"✅ Success! n8n responded with: {response.status_code}")
+        
+    except requests.exceptions.HTTPError as err:
+        print(f"❌ HTTP Error: {err}")
+        print(f"Check if your URL is correct: {config.N8N_WEBHOOK_URL}")
+    except requests.exceptions.ConnectionError:
+        print("❌ Connection Error: Is your ngrok tunnel running?")
+    except Exception as e:
+        print(f"❌ An unexpected error occurred: {e}")
