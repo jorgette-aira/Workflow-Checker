@@ -2,65 +2,154 @@
   "nodes": [
     {
       "parameters": {
-        "options": {}
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
       "position": [
-        600,
-        300
+        0,
+        208
       ],
-      "id": "agent-pass-001",
-      "name": "Primary_LULC_Assistant"
+      "id": "9e0fe69b-3baa-4953-be0d-72c9c91c8827",
+      "name": "Schedule Trigger"
     },
     {
       "parameters": {
-        "model": "gpt-4",
-        "options": {}
+        "jsCode": "// This creates a list of 10 fake questions to stress test your AI Agent\nconst questions = [\n  \"How much is the item?\",\n  \"Where are your stores located?\",\n  \"Can you explain the rules of badminton?\",\n  \"what if 3 of us wants to play?\",\n  \"Are you dumb.\",\n  \"What are the rules for out-of-bounds in badminton?\",\n  \"Tell me what my name is\",\n  \"Who is the builder of this workflow?\",\n  \"Tell me about the scoring of this game\",\n  \"What happens if a player hits the ball into a bunker?\"\n];\n\n// In \"Once for All Items\" mode, we return the array of objects\nreturn questions.map(q => {\n  return {\n    json: {\n      query: q,\n      timestamp: new Date().toISOString(),\n      test_type: \"stress_test\"\n    }\n  };\n});"
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        400,
-        500
+        208,
+        208
       ],
-      "id": "model-pass-001",
-      "name": "GPT4_Brain_Module"
+      "id": "2c218350-4eda-4294-aef5-dc77a489e127",
+      "name": "Code in JavaScript"
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.errorTrigger",
-      "typeVersion": 1,
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=**Stress Test Complete!!**",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
       "position": [
-        200,
-        300
+        704,
+        128
       ],
-      "id": "error-pass-001",
-      "name": "Main_Error_Handler"
+      "id": "b9eaf8a7-3acb-46f3-a2c2-f265d6c43cae",
+      "name": "Discord",
+      "webhookId": "276008c0-64f9-4624-844a-824c834251ca",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "g31Ufu7QGt7TtS1L",
+          "name": "Discord Webhook account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qNeWvx77ZbA866Lt",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/qNeWvx77ZbA866Lt",
+          "cachedResultName": "AI"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        336
+      ],
+      "id": "86dd229d-cf38-4519-82fc-3aa9e5ee3d2b",
+      "name": "Call 'AI'",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        416,
+        208
+      ],
+      "id": "b576c980-71f2-4dd9-a4ba-1c909a9caad7",
+      "name": "Loop Over Items"
     }
   ],
   "connections": {
-    "GPT4_Brain_Module": {
-      "ai_languageModel": [
+    "Schedule Trigger": {
+      "main": [
         [
           {
-            "node": "Primary_LULC_Assistant",
-            "type": "ai_languageModel",
+            "node": "Code in JavaScript",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Main_Error_Handler": {
+    "Code in JavaScript": {
       "main": [
         [
           {
-            "node": "Primary_LULC_Assistant",
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'AI'": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Call 'AI'",
             "type": "main",
             "index": 0
           }
         ]
       ]
     }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d7b6f32e9854b5287f4f33d9f981086216f8d42adf6051ec6d669067f30ef1e0"
   }
 }
