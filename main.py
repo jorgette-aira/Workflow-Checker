@@ -1,7 +1,7 @@
 import os
 import requests
 import json
-import time  # New import for timing
+import time  
 import config
 from metrics import run_all_metrics
 
@@ -25,15 +25,14 @@ def main():
         actual_agent_response = "Hello! I am your assistant from Batangas."
         expected_qa_answer = "assistant Batangas" 
 
-        # --- Performance Tracking Start ---
+
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
         end_time = time.time()
         
         execution_duration = round(end_time - start_time, 2)
-        # ----------------------------------
 
-        # Check if response time is too slow (e.g., > 10 seconds)
+
         if execution_duration > 10.0:
             details += f"\n⚠️ Warning: High latency ({execution_duration}s)"
 
@@ -54,7 +53,7 @@ def main():
         "builder_name": builder_github_username,
         "mention_target": mention_target,
         "test_results": details,
-        "execution_time": f"{execution_duration}s" # New field for n8n/Discord
+        "execution_time": f"{execution_duration}s" 
     }
 
     print(f"📡 Triggering n8n: {config.N8N_WEBHOOK_URL}")
