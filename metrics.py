@@ -93,8 +93,8 @@ def run_all_metrics(workflow_data, agent_response, expected_qa):
     
     details = (
         f"{acc_res['message']}\n"
-        f"{tone_msg}"
-        f"{struct_res['message']}\n"
+        f"{tone_msg}\n"
+        f"{struct_res['message']}"
     )
     
     return overall_passed, details
