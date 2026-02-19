@@ -60,8 +60,8 @@ def check_structure(workflow_data):
     
     messages = []
     if not has_error_trigger: messages.append("\n\t- Missing Error Trigger.")
-    if orphans: messages.append(f"\n\t- Orphan nodes: {', '.join(orphans)}.")
-    if not has_model: messages.append("\n\t- Agent has no Model connected.")
+    if orphans: messages.append(f"\n- Orphan nodes: {', '.join(orphans)}.")
+    if not has_model: messages.append("\n- Agent has no Model connected.")
     
     return {
         "passed": passed,
