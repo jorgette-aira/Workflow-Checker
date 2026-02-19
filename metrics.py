@@ -38,6 +38,23 @@ def check_structure(workflow_json):
         return True, "Structure: Error handling is present."
     return False, "Structure: Missing an Error Trigger node."
 
+def calculate_accuracy(agent_response, expected_qa):
+    """Checks if the agent response contains the expected keywords."""
+    # Split expected keywords (e.g., "assistant Batangas" -> ["assistant", "batangas"])
+    required_keywords = expected_qa.lower().split()
+    response_lower = agent_response.lower()
+    
+    found_words = [word for word in required_keywords if word in response_lower]
+    score = (len(found_words) / len(required_keywords)) * 100
+    
+    passed = score >= 80 # Threshold: 80% accuracy to pass
+    
+    return {
+        "passed": passed,
+        "score": score,
+        "message": f"Accuracy Score: {score:.2f}% ({'Passed' if passed else 'Failed'})"
+    }
+
 def run_all_metrics(workflow_data, agent_response, expected_qa):
     results = {
         "structure": check_structure(workflow_data),
