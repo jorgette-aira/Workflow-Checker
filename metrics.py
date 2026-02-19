@@ -91,13 +91,20 @@ def calculate_accuracy(agent_response, expected_qa):
     }
 
 def run_all_metrics(workflow_data, agent_response, expected_qa):
-    results = {
-        "structure": check_structure(workflow_data),
-        "accuracy": calculate_accuracy(agent_response, expected_qa),
-        "tone": check_tone(agent_response)
-    }
+    # Perform the checks
+    struct_res = check_structure(workflow_data)
+    acc_res = calculate_accuracy(agent_response, expected_qa)
+    tone_passed, tone_msg = check_tone(agent_response) # check_tone returns a tuple in your code
     
-    # Final pass/fail is only true if ALL scores are above a threshold
-    overall_passed = all(v['passed'] for v in results.values())
+    # 1. Determine overall pass/fail
+    overall_passed = struct_res["passed"] and acc_res["passed"] and tone_passed
     
-    return overall_passed, results
+    # 2. Format the dictionary into a human-readable string for 'details'
+    details = (
+        f"{struct_res['message']}\n"
+        f"{acc_res['message']}\n"
+        f"{tone_msg}"
+    )
+    
+    # 3. Return as (bool, str) to match your main.py unpacking
+    return overall_passed, details
