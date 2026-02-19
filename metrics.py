@@ -5,7 +5,6 @@ def check_accuracy(agent_output, expected_answer):
     Measures how closely the bot's answer matches the ground truth.
     For complex answers, we look for key technical terms.
     """
-    # Simple keyword-based accuracy check
     keywords = expected_answer.lower().split()
     matches = sum(1 for word in keywords if word in agent_output.lower())
     score = (matches / len(keywords)) * 100 if keywords else 0
@@ -34,28 +33,23 @@ def check_structure(workflow_data):
     node_types = [node.get("type") for node in nodes]
     node_names = [node.get("name") for node in nodes]
     
-    # 1. Check for Error Trigger
     has_error_trigger = "n8n-nodes-base.errorTrigger" in node_types
     
-    # 2. Connection Check (Orphan Finder)
     connected_nodes = set()
     for source_node, connection_types in connections.items():
         connected_nodes.add(source_node)
-        # Use .values() to iterate through 'main', 'ai_languageModel', etc.
         for connection_branches in connection_types.values():
             for branch in connection_branches:
                 for target in branch:
                     connected_nodes.add(target.get("node"))
     
     orphans = [name for name in node_names if name not in connected_nodes]
-    
-    # 3. Logic Check: Does Agent have a Model?
+
     agent_node = next((n for n in nodes if n.get("type") == "@n8n/n8n-nodes-langchain.agent"), None)
     has_model = False
     if agent_node:
         agent_name = agent_node.get("name")
         for source_node, connection_types in connections.items():
-            # Check the 'ai_languageModel' input specifically
             if "ai_languageModel" in connection_types:
                 for branch in connection_types["ai_languageModel"]:
                     for target in branch:
@@ -81,7 +75,7 @@ def calculate_accuracy(agent_response, expected_qa):
     found_words = [word for word in required_keywords if word in response_lower]
     score = (len(found_words) / len(required_keywords)) * 100
     
-    passed = score >= 90 # Threshold: 80% accuracy to pass
+    passed = score >= 90 # Threshold: 90% accuracy to pass
     
     return {
         "passed": passed,
@@ -93,17 +87,14 @@ def run_all_metrics(workflow_data, agent_response, expected_qa):
     # Perform the checks
     struct_res = check_structure(workflow_data)
     acc_res = calculate_accuracy(agent_response, expected_qa)
-    tone_passed, tone_msg = check_tone(agent_response) # check_tone returns a tuple in your code
+    tone_passed, tone_msg = check_tone(agent_response) 
     
-    # 1. Determine overall pass/fail
     overall_passed = struct_res["passed"] and acc_res["passed"] and tone_passed
     
-    # 2. Format the dictionary into a human-readable string for 'details'
     details = (
         f"{struct_res['message']}\n"
         f"{acc_res['message']}\n"
         f"{tone_msg}"
     )
     
-    # 3. Return as (bool, str) to match your main.py unpacking
     return overall_passed, details
