@@ -22,7 +22,7 @@ def main():
         with open(workflow_path, 'r') as f:
             workflow_data = json.load(f)
         
-        actual_agent_response = "Whatever, I'm your ai bot, now leave me alone." 
+        actual_agent_response = "Hello, what can I do for you." 
         expected_qa_answer = "assistant Batangas" 
 
         # --- Performance Tracking Start ---
