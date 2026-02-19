@@ -38,21 +38,14 @@ def check_structure(workflow_json):
         return True, "Structure: Error handling is present."
     return False, "Structure: Missing an Error Trigger node."
 
-def run_all_metrics(workflow_json, agent_output, expected_answer):
-    """
-    The main evaluator function called by main.py.
-    """
-    results = []
+def run_all_metrics(workflow_data, agent_response, expected_qa):
+    results = {
+        "structure": check_structure(workflow_data),
+        "accuracy": calculate_accuracy(agent_response, expected_qa),
+        "tone": check_tone(agent_response)
+    }
     
-    # Run the checks
-    checks = [
-        check_structure(workflow_json),
-        check_accuracy(agent_output, expected_answer),
-        check_tone(agent_output)
-    ]
+    # Final pass/fail is only true if ALL scores are above a threshold
+    overall_passed = all(v['passed'] for v in results.values())
     
-    # Aggregate results
-    all_passed = all(status for status, msg in checks)
-    summary = "\n".join([msg for status, msg in checks])
-    
-    return all_passed, summary
+    return overall_passed, results
