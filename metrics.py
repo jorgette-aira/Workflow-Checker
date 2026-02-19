@@ -59,9 +59,9 @@ def check_structure(workflow_data):
     passed = has_error_trigger and len(orphans) == 0 and has_model
     
     messages = []
-    if not has_error_trigger: messages.append("Missing Error Trigger.")
-    if orphans: messages.append(f"\n\t    Orphan nodes: {', '.join(orphans)}.")
-    if not has_model: messages.append("\n\t    Agent has no Model connected.")
+    if not has_error_trigger: messages.append("\n\t- Missing Error Trigger.")
+    if orphans: messages.append(f"\n\t- Orphan nodes: {', '.join(orphans)}.")
+    if not has_model: messages.append("\n\t- Agent has no Model connected.")
     
     return {
         "passed": passed,
@@ -92,9 +92,9 @@ def run_all_metrics(workflow_data, agent_response, expected_qa):
     overall_passed = struct_res["passed"] and acc_res["passed"] and tone_passed
     
     details = (
-        f"{struct_res['message']}\n"
         f"{acc_res['message']}\n"
         f"{tone_msg}"
+        f"{struct_res['message']}\n"
     )
     
     return overall_passed, details
