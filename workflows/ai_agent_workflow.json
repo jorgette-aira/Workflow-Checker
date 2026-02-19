@@ -2,144 +2,258 @@
   "nodes": [
     {
       "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "seconds"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.3,
-      "position": [
-        0,
-        208
-      ],
-      "id": "9e0fe69b-3baa-4953-be0d-72c9c91c8827",
-      "name": "Schedule Trigger"
-    },
-    {
-      "parameters": {
-        "jsCode": "// This creates a list of 10 fake questions to stress test your AI Agent\nconst questions = [\n  \"How much is the item?\",\n  \"Where are your stores located?\",\n  \"Can you explain the rules of badminton?\",\n  \"what if 3 of us wants to play?\",\n  \"Are you dumb.\",\n  \"What are the rules for out-of-bounds in badminton?\",\n  \"Tell me what my name is\",\n  \"Who is the builder of this workflow?\",\n  \"Tell me about the scoring of this game\",\n  \"What happens if a player hits the ball into a bunker?\"\n];\n\n// In \"Once for All Items\" mode, we return the array of objects\nreturn questions.map(q => {\n  return {\n    json: {\n      query: q,\n      timestamp: new Date().toISOString(),\n      test_type: \"stress_test\"\n    }\n  };\n});"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        208,
-        208
-      ],
-      "id": "2c218350-4eda-4294-aef5-dc77a489e127",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "authentication": "webhook",
-        "content": "=**Stress Test Complete!!**",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/12ClMyr7ZJmYPESNba3F5MP2T-m_dcO1r/view?usp=drive_link",
+          "mode": "url"
+        },
         "options": {}
       },
-      "type": "n8n-nodes-base.discord",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
       "position": [
-        640,
-        48
+        -176,
+        480
       ],
-      "id": "b9eaf8a7-3acb-46f3-a2c2-f265d6c43cae",
-      "name": "Discord",
-      "webhookId": "276008c0-64f9-4624-844a-824c834251ca",
+      "id": "eda756ff-265e-49d3-9555-b299409905ab",
+      "name": "Download file",
       "credentials": {
-        "discordWebhookApi": {
-          "id": "g31Ufu7QGt7TtS1L",
-          "name": "Discord Webhook account 2"
+        "googleDriveOAuth2Api": {
+          "id": "0UVbITAbONlQuVGK",
+          "name": "Google Drive account"
         }
       }
     },
     {
       "parameters": {
-        "workflowId": {
+        "mode": "insert",
+        "tableName": {
           "__rl": true,
-          "value": "qNeWvx77ZbA866Lt",
+          "value": "documents",
           "mode": "list",
-          "cachedResultUrl": "/workflow/qNeWvx77ZbA866Lt",
-          "cachedResultName": "AI"
+          "cachedResultName": "documents"
         },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "mode": "each",
         "options": {}
       },
-      "type": "n8n-nodes-base.executeWorkflow",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
       "typeVersion": 1.3,
       "position": [
-        608,
-        336
+        32,
+        480
       ],
-      "id": "86dd229d-cf38-4519-82fc-3aa9e5ee3d2b",
-      "name": "Call 'AI'",
-      "alwaysOutputData": false,
-      "executeOnce": false,
-      "retryOnFail": false
+      "id": "3353382f-22fb-4125-9087-1c0e60961291",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TjReM2PDjdTo9iqH",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        688
+      ],
+      "id": "6e662a0a-ab02-468d-8045-e4798e18d6bb",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "model": "=text-embedding-3-small",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        688
+      ],
+      "id": "a8710bf7-35bd-49dc-a30e-2d4de0a28770",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "yhmGGFmpn6otPGlG",
+          "name": "OpenAi account"
+        }
+      }
     },
     {
       "parameters": {
         "options": {}
       },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
       "position": [
-        416,
-        208
+        -224,
+        48
       ],
-      "id": "b576c980-71f2-4dd9-a4ba-1c909a9caad7",
-      "name": "Loop Over Items"
+      "id": "c508f58b-b7e5-4b5b-a255-fe54877e82d8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -416,
+        48
+      ],
+      "id": "018ad303-d767-4b42-bbde-f29d2f9fea00",
+      "name": "When chat message received",
+      "webhookId": "a918dbba-1427-4d09-a452-167bd9d689f1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "gpt-4"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        256
+      ],
+      "id": "14b9524f-5a17-4835-85cd-66900bd1742a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "yhmGGFmpn6otPGlG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Call this tool to look up the rules of golf",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        64
+      ],
+      "id": "8c45ffe4-7093-407b-93fe-301e7f876b9f",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "TjReM2PDjdTo9iqH",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        480
+      ],
+      "id": "5f39f689-ccd9-4333-b939-693bf582a4c8",
+      "name": "When clicking ‘Execute workflow’"
     }
   ],
   "connections": {
-    "Schedule Trigger": {
+    "Download file": {
       "main": [
         [
           {
-            "node": "Code in JavaScript",
+            "node": "Supabase Vector Store",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Code in JavaScript": {
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
       "main": [
         [
           {
-            "node": "Loop Over Items",
+            "node": "AI Agent",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call 'AI'": {
-      "main": [
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
         [
           {
-            "node": "Loop Over Items",
-            "type": "main",
+            "node": "AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "Loop Over Items": {
-      "main": [
-        [],
+    "Supabase Vector Store1": {
+      "ai_tool": [
         [
           {
-            "node": "Call 'AI'",
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
             "type": "main",
             "index": 0
           }
@@ -149,7 +263,6 @@
   },
   "pinData": {},
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "d7b6f32e9854b5287f4f33d9f981086216f8d42adf6051ec6d669067f30ef1e0"
   }
 }
