@@ -64,7 +64,7 @@ def check_structure(workflow_data):
 
     return {
         "passed": passed,
-        "message": "**\tStructure:** Good" if passed else f"ln\t**Structure Issues:** {' '.join(messages)}"
+        "message": "**\tStructure:** Good" if passed else f"\t**Structure Issues:** {' '.join(messages)}"
     }
 
 def calculate_accuracy(agent_response, expected_qa):
