@@ -34,42 +34,40 @@ def check_structure(workflow_data):
     node_types = [node.get("type") for node in nodes]
     node_names = [node.get("name") for node in nodes]
     
-    # 1. Production Requirement: Error Trigger
+    # 1. Check for Error Trigger
     has_error_trigger = "n8n-nodes-base.errorTrigger" in node_types
     
-    # 2. Connection Check: Look for Orphan Nodes
-    # We check if each node name appears at least once in the connections dictionary
+    # 2. Connection Check (Orphan Finder)
     connected_nodes = set()
-    for source_node, targets in connections.items():
+    for source_node, connection_types in connections.items():
         connected_nodes.add(source_node)
-        for connection_type in targets.values():
-            for connection_list in connection_type:
-                for target in connection_list:
+        # Use .values() to iterate through 'main', 'ai_languageModel', etc.
+        for connection_branches in connection_types.values():
+            for branch in connection_branches:
+                for target in branch:
                     connected_nodes.add(target.get("node"))
     
     orphans = [name for name in node_names if name not in connected_nodes]
     
-    # 3. Logic Check: Does the AI Agent have a Model?
-    # Find the AI Agent node name first
+    # 3. Logic Check: Does Agent have a Model?
     agent_node = next((n for n in nodes if n.get("type") == "@n8n/n8n-nodes-langchain.agent"), None)
     has_model = False
     if agent_node:
         agent_name = agent_node.get("name")
-        # Check if any node is connected to the agent's 'ai_languageModel' input
-        for source_node, targets in connections.items():
-            for connection_type, connections_list in targets.items():
-                for branch in connections_list:
-                    for conn in branch:
-                        if conn.get("node") == agent_name and conn.get("type") == "ai_languageModel":
+        for source_node, connection_types in connections.items():
+            # Check the 'ai_languageModel' input specifically
+            if "ai_languageModel" in connection_types:
+                for branch in connection_types["ai_languageModel"]:
+                    for target in branch:
+                        if target.get("node") == agent_name:
                             has_model = True
 
-    # Scoring Logic
     passed = has_error_trigger and len(orphans) == 0 and has_model
     
     messages = []
     if not has_error_trigger: messages.append("Missing Error Trigger.")
-    if orphans: messages.append(f"Orphan nodes found: {', '.join(orphans)}.")
-    if not has_model: messages.append("AI Agent has no Model connected.")
+    if orphans: messages.append(f"Orphan nodes: {', '.join(orphans)}.")
+    if not has_model: messages.append("Agent has no Model connected.")
     
     return {
         "passed": passed,
