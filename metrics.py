@@ -23,8 +23,8 @@ def check_tone(agent_output):
     found_terms = [word for word in unprofessional_terms if word in agent_output.lower()]
     
     if not found_terms:
-        return True, "Tone: Professional and appropriate."
-    return False, f"Tone: Unprofessional language detected: {', '.join(found_terms)}"
+        return True, "**Tone**: Professional and appropriate."
+    return False, f"**Tone**: Unprofessional language detected: {', '.join(found_terms)}"
 
 def check_structure(workflow_data):
     """Checks if the workflow has required nodes and if they are connected."""
@@ -71,23 +71,22 @@ def check_structure(workflow_data):
     
     return {
         "passed": passed,
-        "message": "Structure: Good" if passed else f"Structure Issues: {' '.join(messages)}"
+        "message": "**Structure:** Good" if passed else f"Structure Issues: {' '.join(messages)}"
     }
 def calculate_accuracy(agent_response, expected_qa):
     """Checks if the agent response contains the expected keywords."""
-    # Split expected keywords (e.g., "assistant Batangas" -> ["assistant", "batangas"])
     required_keywords = expected_qa.lower().split()
     response_lower = agent_response.lower()
     
     found_words = [word for word in required_keywords if word in response_lower]
     score = (len(found_words) / len(required_keywords)) * 100
     
-    passed = score >= 80 # Threshold: 80% accuracy to pass
+    passed = score >= 90 # Threshold: 80% accuracy to pass
     
     return {
         "passed": passed,
         "score": score,
-        "message": f"Accuracy Score: {score:.2f}% ({'Passed' if passed else 'Failed'})"
+        "message": f"**Accuracy Score: ** {score:.2f}% ({'Passed' if passed else 'Failed'})"
     }
 
 def run_all_metrics(workflow_data, agent_response, expected_qa):
