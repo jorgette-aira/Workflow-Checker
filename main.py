@@ -3,7 +3,7 @@ import requests
 import json
 import time  
 import config
-from metrics import run_all_metrics
+from metrics import deepeval
 
 def main():
     print("🚀 Script started successfully!")
