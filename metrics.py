@@ -9,7 +9,7 @@ def run_deepeval_accuracy(user_input, agent_output):
     # 2. Create a Test Case
     test_case = LLMTestCase(
         input=user_input,
-        actual_output=agent_output
+        actual_output=agent_output,
         context=context
     )
     
