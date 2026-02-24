@@ -18,19 +18,12 @@ def run_deepeval_check(user_input, agent_output, context):
     
     return passed, f"    **DeepEval Score:** {score:.2f}% ({'Passed' if passed else 'Failed'})"
 
-# --- CRITICAL: Move this to the LEFT MARGIN ---
 def run_all_metrics(workflow_data, agent_response, expected_qa):
-    # 1. Structural Check
     struct_res = check_structure(workflow_data)
-    
-    # 2. Tone Check
     tone_passed, tone_msg = check_tone(agent_response) 
-    
-    # 3. DeepEval Check (Using expected_qa as the 'context' for now)
     context = [expected_qa]
     acc_passed, acc_msg = run_deepeval_check(expected_qa, agent_response, context)
     
-    # Calculate overall status
     overall_passed = struct_res["passed"] and tone_passed and acc_passed
 
     details = (
