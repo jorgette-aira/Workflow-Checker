@@ -1,4 +1,4 @@
-from deepeval.metrics import AnswerRelevancyMetric
+from deepeval.metrics import AnswerRelevancyMetric, HallucinationMetric
 from deepeval.test_case import LLMTestCase
 
 def run_deepeval_accuracy(user_input, agent_output):
@@ -10,6 +10,7 @@ def run_deepeval_accuracy(user_input, agent_output):
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_output
+        context=context
     )
     
     # 3. Measure
