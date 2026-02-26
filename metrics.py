@@ -36,12 +36,14 @@ def run_deepeval_metrics(agent_response, user_input, context):
     # NEW: Updated Tone Criteria for "Appropriate" instead of "Professional"
     tone_metric = GEval(
         name="Tone",
-        criteria=(
-            "The tone should be appropriate for a technical assistant: "
-            "helpful, clear, and direct. It does not need to be overly formal, "
-            "but must avoid slang and maintain a supportive, peer-like energy."
-        ),
-        evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
+        criteria="Determine if the tone is helpful, direct, and appropriate for a technical assistant.",
+        # Explicitly defining what 1-5 looks like ensures a PASS
+        evaluation_steps=[
+            "Score 1: Rude, robotic, or completely irrelevant.",
+            "Score 3: Neutral and clear, but lacks helpfulness.",
+            "Score 5: Helpful, conversational, clear, and perfectly appropriate for a developer tool."
+        ],
+        evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT, LLMTestCaseParams.INPUT],
         threshold=0.7
     )
     
