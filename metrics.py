@@ -36,15 +36,16 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
     # Calculate scores
     rel_score = relevancy_metric.score * 100
     tone_score = tone_metric.score * 100
+    hall_score = hallucination_metric.score * 100
     
     # Overall Pass/Fail logic
-    passed = relevancy_metric.is_successful() and tone_metric.is_successful() and hallucination_metric.is_successful()
+    passed = (relevancy_metric.is_successful() and tone_metric.is_successful() and hallucination_metric.is_successful())
     
     # Formatting for your Discord Notification
     details = (
         f"    **Accuracy :** {rel_score:.2f}% ({'Passed' if relevancy_metric.is_successful() else 'Failed'})\n"
         f"    **Tone :** {tone_score:.2f}% ({'Passed' if tone_metric.is_successful() else 'Failed'})\n"
-        f"    **Factual Consistency:** {hallucination_metric.score * 100:.1f}%\n"
+        f"    **Factual Consistency:** {hall_score:.1f}% ({'Passed' if hallucination_metric.is_successful() else 'Failed'})\n"
         f"    **DeepEval Reason:** {hallucination_metric.reason}"
     )
     
@@ -52,4 +53,6 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
 
 def run_all_metrics(workflow_data, agent_response, expected_qa):
     # Map the expected_qa to user_input for the DeepEval check
-    return run_deepeval_metrics(workflow_data, agent_response, expected_qa)
+
+    context_as_list = [expected_qa]
+    return run_deepeval_metrics(workflow_data, agent_response, expected_qa, context_as_list)
