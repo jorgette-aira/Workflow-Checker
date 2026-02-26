@@ -1,11 +1,48 @@
 from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
-# FIX: Added 'context' to the arguments (making it 4 total)
+def check_workflow_structure(workflow_data):
+    """
+    Scans the JSON for AI Agent nodes, Model connections, and Orphan nodes.
+    """
+    nodes = workflow_data.get("nodes", [])
+    connections = workflow_data.get("connections", {})
+    
+   # 1. Identity all nodes by their names
+    all_node_names = {n.get("name") for n in nodes}
+    
+    # 2. Map all nodes that are part of a connection
+    connected_nodes = set()
+    for source_node, targets in connections.items():
+        connected_nodes.add(source_node) # Node sending data
+        for connection_type in targets.values():
+            for branch in connection_type:
+                for connection in branch:
+                    connected_nodes.add(connection.get("node"))
+
+    # 3. Identify Orphans
+    orphans = all_node_names - connected_nodes
+    
+    # 4. Check for AI Essentials
+    has_agent = any(n.get("type") == "@n8n/n8n-nodes-langchain.agent" for n in nodes)
+    has_model = "ai_languageModel" in str(connections)
+
+    if not has_agent:
+        return False, "❌ FAIL: No AI Agent node found."
+    if not has_model:
+        return False, "❌ FAIL: AI Agent has no Model connected."
+    if orphans:
+        # We list the specific orphans to help you find them in n8n
+        orphan_list = ", ".join(orphans)
+        return False, f"❌ FAIL: Orphan nodes detected: [{orphan_list}]. Please connect or delete them."
+    
+    return True, "✅ Structure: Correct (No orphans, Agent & Model active)."
+    
 def run_deepeval_metrics(workflow_data, agent_response, user_input, context):
     """
-    Pure DeepEval implementation using GEval for Tone, 
-    AnswerRelevancy for Accuracy, and Hallucination for Consistency.
+    DeepEval implementation using GEval for Tone, 
+    AnswerRelevancy for Accuracy, and 
+    Hallucination for Consistency.
     """
     
     # 1. Initialize Metrics
@@ -22,7 +59,7 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input, context):
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_response,
-        context=context  # Now 'context' is correctly received from the arguments
+        context=context
     )
     
     # 3. Measure
@@ -48,8 +85,22 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input, context):
     return passed, details
 
 def run_all_metrics(workflow_data, agent_response, expected_qa):
-    # We wrap expected_qa in a list because HallucinationMetric requires a list
-    context_as_list = [expected_qa]
+    # Layer 1: Check the actual JSON code
+    struct_passed, struct_msg = check_workflow_structure(workflow_data)
     
-    # Passing 4 arguments: 1. workflow_data, 2. agent_response, 3. expected_qa, 4. context_as_list
-    return run_deepeval_metrics(workflow_data, agent_response, expected_qa, context_as_list)
+    if not struct_passed:
+        return False, struct_msg
+
+    # Layer 2: Run DeepEval on the Output
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
+    test_case = LLMTestCase(
+        input="Verify workflow functionality",
+        actual_output=agent_response,
+        retrieval_context=[str(workflow_data)]
+    )
+    relevancy_metric.measure(test_case)
+    
+    overall_passed = struct_passed and relevancy_metric.is_successful()
+    details = f"{struct_msg}\n    **DeepEval Accuracy:** {relevancy_metric.score*100:.1f}%"
+    
+    return overall_passed, details
