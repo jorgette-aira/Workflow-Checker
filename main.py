@@ -19,7 +19,7 @@ def main():
         return
 
     try:
-        with open(workflow_path, 'r') as f:
+        with open(workflow_path, 'r', encoding="utf-8") as f:
             workflow_data = json.load(f)
         
         
