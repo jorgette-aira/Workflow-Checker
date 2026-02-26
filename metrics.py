@@ -92,15 +92,13 @@ def run_all_metrics(workflow_data, agent_response, expected_qa):
         return False, struct_msg
 
     # Layer 2: Run DeepEval on the Output
-    relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
-    test_case = LLMTestCase(
-        input="Verify workflow functionality",
-        actual_output=agent_response,
-        retrieval_context=[str(workflow_data)]
+    deepeval_passed, deepeval_details = run_deepeval_metrics(
+        agent_response=agent_response,
+        user_input="Verify workflow functionality",
+        context=[expected_qa]
     )
-    relevancy_metric.measure(test_case)
     
-    overall_passed = struct_passed and relevancy_metric.is_successful()
-    details = f"{struct_msg}\n    **DeepEval Accuracy:** {relevancy_metric.score*100:.1f}%"
+    overall_passed = struct_passed and deepeval_passed
+    full_report = f"{struct_msg}\n{deepeval_details}"
     
-    return overall_passed, details
+    return overall_passed, full_report
