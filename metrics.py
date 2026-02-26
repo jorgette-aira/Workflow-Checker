@@ -1,20 +1,21 @@
-from deepeval.metrics import AnswerRelevancyMetric, StyleMetric
-from deepeval.test_case import LLMTestCase
+from deepeval.metrics import AnswerRelevancyMetric, GEval
+from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 def run_deepeval_metrics(workflow_data, agent_response, user_input):
     """
-    Pure DeepEval implementation for Workflow-Checker.
-    Uses LLM-based evaluation for all metrics.
+    Pure DeepEval implementation using GEval for Tone and 
+    AnswerRelevancy for Accuracy.
     """
     
-    # 1. Answer Relevancy Metric
-    # Replaces your old keyword-matching accuracy check.
-    relevancy_metric = AnswerRelevancyMetric(threshold=0.8)
+    # 1. Answer Relevancy Metric (Semantic Accuracy)
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
     
-    # 2. Tone/Style Metric
-    # Replaces the unprofessional_terms list check.
-    tone_metric = StyleMetric(
-        evaluation_params=["professional", "helpful", "concise"],
+    # 2. Tone Metric (using G-Eval to judge Professionalism)
+    # This replaces StyleMetric to avoid the ImportError.
+    tone_metric = GEval(
+        name="Tone",
+        criteria="Determine if the response is professional, helpful, and avoids informal slang.",
+        evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
         threshold=0.7
     )
     
@@ -22,7 +23,8 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_response,
-        retrieval_context=[str(workflow_data)] # Passing structure as context for analysis
+        # We pass the workflow structure as context so the LLM can see the nodes
+        retrieval_context=[str(workflow_data)] 
     )
     
     # 4. Measure
@@ -33,10 +35,10 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
     rel_score = relevancy_metric.score * 100
     tone_score = tone_metric.score * 100
     
-    # Logic for overall pass (DeepEval logic)
+    # Overall Pass/Fail logic
     passed = relevancy_metric.is_successful() and tone_metric.is_successful()
     
-    # Formatting for Discord
+    # Formatting for your Discord Notification
     details = (
         f"    **Accuracy (Relevancy):** {rel_score:.2f}% ({'Passed' if relevancy_metric.is_successful() else 'Failed'})\n"
         f"    **Tone (Professionalism):** {tone_score:.2f}% ({'Passed' if tone_metric.is_successful() else 'Failed'})\n"
@@ -45,6 +47,6 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
     
     return passed, details
 
-# Standard orchestrator name for your main.py import
 def run_all_metrics(workflow_data, agent_response, expected_qa):
+    # Map the expected_qa to user_input for the DeepEval check
     return run_deepeval_metrics(workflow_data, agent_response, expected_qa)
