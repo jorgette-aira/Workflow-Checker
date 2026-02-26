@@ -1,9 +1,7 @@
 from deepeval.metrics import AnswerRelevancyMetric, GEval
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
-from deepeval.models.gpt_model import GPTModel
+from deepeval.models import GPTModel
 
-# Initialize a cheaper model (gpt-4o-mini)
-cheap_model = GPTModel(model="gpt-4o-mini")
 def run_deepeval_metrics(workflow_data, agent_response, user_input):
     """
     Pure DeepEval implementation using GEval for Tone and 
@@ -19,8 +17,7 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
         name="Tone",
         criteria="Determine if the response is professional, helpful, and avoids informal slang.",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
-        threshold=0.7,
-        model=cheap_model
+        threshold=0.7
     )
     
     # 3. Create the Test Case
