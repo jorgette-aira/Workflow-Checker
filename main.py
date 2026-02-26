@@ -23,8 +23,8 @@ def main():
             workflow_data = json.load(f)
         
         
-        actual_agent_response = "This digital interface provides technical assistance for the CALABARZON LULC classification thesis and the Cpelympics Discord automation project."
-        expected_qa_answer = "This digital interface provides technical assistance for the CALABARZON LULC classification thesis and the Cpelympics Discord automation project."
+        actual_agent_response = "Good Day, what can I do to help you?"
+        expected_qa_answer = "Good Day, what can I do to help you?"
 
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
