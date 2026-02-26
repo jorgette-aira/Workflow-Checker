@@ -2,28 +2,21 @@ from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 def check_workflow_structure(workflow_data):
-    """
-    Scans the JSON for AI Agent nodes, Model connections, and Orphan nodes.
-    """
+    """Scans the JSON for AI Agent nodes, Model connections, and Orphan nodes."""
     nodes = workflow_data.get("nodes", [])
     connections = workflow_data.get("connections", {})
     
-   # 1. Identity all nodes by their names
     all_node_names = {n.get("name") for n in nodes}
-    
-    # 2. Map all nodes that are part of a connection
     connected_nodes = set()
+    
     for source_node, targets in connections.items():
-        connected_nodes.add(source_node) # Node sending data
+        connected_nodes.add(source_node)
         for connection_type in targets.values():
             for branch in connection_type:
                 for connection in branch:
                     connected_nodes.add(connection.get("node"))
 
-    # 3. Identify Orphans
     orphans = all_node_names - connected_nodes
-    
-    # 4. Check for AI Essentials
     has_agent = any(n.get("type") == "@n8n/n8n-nodes-langchain.agent" for n in nodes)
     has_model = "ai_languageModel" in str(connections)
 
@@ -32,20 +25,14 @@ def check_workflow_structure(workflow_data):
     if not has_model:
         return False, "**Structure Error**: AI Agent has no Model connected."
     if orphans:
-        # We list the specific orphans to help you find them in n8n
         orphan_list = ", ".join(orphans)
-        return False, f"**Structure Error**: Orphan nodes detected: [{orphan_list}]. Please connect or delete them."
+        return False, f"**Structure Error**: Orphan nodes detected: [{orphan_list}]."
     
     return True, "**Structure**: Correct (No orphans, Agent & Model active)."
-    
-def run_deepeval_metrics(workflow_data, agent_response, user_input, context):
-    """
-    DeepEval implementation using GEval for Tone, 
-    AnswerRelevancy for Accuracy, and 
-    Hallucination for Consistency.
-    """
-    
-    # 1. Initialize Metrics
+
+# REMOVED: workflow_data from the arguments here to match the call below
+def run_deepeval_metrics(agent_response, user_input, context):
+    """Handles the heavy lifting of LLM evaluation."""
     relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
     tone_metric = GEval(
         name="Tone",
@@ -55,43 +42,36 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input, context):
     )
     hallucination_metric = HallucinationMetric(threshold=0.5)
 
-    # 2. Create the Test Case
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_response,
         context=context
     )
     
-    # 3. Measure
     relevancy_metric.measure(test_case)
     tone_metric.measure(test_case)
     hallucination_metric.measure(test_case)
-    
-    rel_score = relevancy_metric.score * 100
-    tone_score = tone_metric.score * 100
-    hall_score = hallucination_metric.score * 100
     
     passed = (relevancy_metric.is_successful() and 
               tone_metric.is_successful() and 
               hallucination_metric.is_successful())
     
     details = (
-        f"    **Accuracy:** {rel_score:.2f}% ({'Passed' if relevancy_metric.is_successful() else 'Failed'})\n"
-        f"    **Tone:** {tone_score:.2f}% ({'Passed' if tone_metric.is_successful() else 'Failed'})\n"
-        f"    **Factual Consistency:** {hall_score:.1f}% ({'Passed' if hallucination_metric.is_successful() else 'Failed'})\n"
-        f"    **DeepEval Reason:** {hallucination_metric.reason}"
+        f"    **Accuracy:** {relevancy_metric.score*100:.2f}% ({'Passed' if relevancy_metric.is_successful() else 'Failed'})\n"
+        f"    **Tone:** {tone_metric.score*100:.2f}% ({'Passed' if tone_metric.is_successful() else 'Failed'})\n"
+        f"    **Factual Consistency:** {hallucination_metric.score*100:.1f}% ({'Passed' if hallucination_metric.is_successful() else 'Failed'})\n"
+        f"    **DeepEval Reason:** ```{hallucination_metric.reason}```"
     )
     
     return passed, details
 
 def run_all_metrics(workflow_data, agent_response, expected_qa):
-    # Layer 1: Check the actual JSON code
+    # 1. Structural Check (Uses workflow_data)
     struct_passed, struct_msg = check_workflow_structure(workflow_data)
-    
     if not struct_passed:
         return False, struct_msg
 
-    # Layer 2: Run DeepEval on the Output
+    # 2. DeepEval Metrics (No longer needs workflow_data)
     deepeval_passed, deepeval_details = run_deepeval_metrics(
         agent_response=agent_response,
         user_input="Verify workflow functionality",
