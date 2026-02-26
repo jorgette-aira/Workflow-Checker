@@ -30,18 +30,22 @@ def check_workflow_structure(workflow_data):
     
     return True, "**Structure**: Correct (No orphans, Agent & Model active)."
 
-# REMOVED: workflow_data from the arguments here to match the call below
 def run_deepeval_metrics(agent_response, user_input, context):
-    """Handles the heavy lifting of LLM evaluation."""
     relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
+    
+    # NEW: Updated Tone Criteria for "Appropriate" instead of "Professional"
     tone_metric = GEval(
         name="Tone",
-        criteria="The tone should be appropriate for a technical assistant: "
+        criteria=(
+            "The tone should be appropriate for a technical assistant: "
             "helpful, clear, and direct. It does not need to be overly formal, "
-            "but must avoid slang and maintain a supportive, peer-like energy.",
+            "but must avoid slang and maintain a supportive, peer-like energy."
+        ),
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
         threshold=0.7
     )
+    
+    # Hallucination check
     hallucination_metric = HallucinationMetric(threshold=0.5)
 
     test_case = LLMTestCase(
@@ -54,19 +58,23 @@ def run_deepeval_metrics(agent_response, user_input, context):
     tone_metric.measure(test_case)
     hallucination_metric.measure(test_case)
     
+    # FIX: Logic for "Factual Consistency"
+    # DeepEval's Hallucination score 0.0 means 0 errors (Perfect).
+    # We subtract from 1.0 to turn it into a "Faithfulness" score (1.0 = Perfect).
+    faithfulness_score = (1.0 - hallucination_metric.score) * 100
+    
     passed = (relevancy_metric.is_successful() and 
               tone_metric.is_successful() and 
-              hallucination_metric.is_successful())
-    
+              hallucination_metric.score <= 0.5) # Hallucination is lower-is-better
+
     details = (
-        f"    **Accuracy:** {relevancy_metric.score*100:.2f}% ({'Passed' if relevancy_metric.is_successful() else 'Failed'})\n"
-        f"    **Tone:** {tone_metric.score*100:.2f}% ({'Passed' if tone_metric.is_successful() else 'Failed'})\n"
-        f"    **Factual Consistency:** {hallucination_metric.score*100:.1f}% ({'Passed' if hallucination_metric.is_successful() else 'Failed'})\n"
+        f"    **Accuracy:** {relevancy_metric.score*100:.2f}% ({'Pass' if relevancy_metric.is_successful() else 'Fail'})\n"
+        f"    **Tone:** {tone_metric.score*100:.2f}% ({'Pass' if tone_metric.is_successful() else 'Fail'})\n"
+        f"    **Factual Consistency:** {faithfulness_score:.1f}% ({'Pass' if hallucination_metric.score <= 0.5 else 'Fail'})\n"
         f"    **DeepEval Reason:** ```{hallucination_metric.reason}```"
     )
     
     return passed, details
-
 def run_all_metrics(workflow_data, agent_response, expected_qa):
     # 1. Structural Check (Uses workflow_data)
     struct_passed, struct_msg = check_workflow_structure(workflow_data)
