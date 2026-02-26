@@ -1,35 +1,50 @@
-from deepeval.metrics import AnswerRelevancyMetric
+from deepeval.metrics import AnswerRelevancyMetric, StyleMetric
 from deepeval.test_case import LLMTestCase
 
-def run_deepeval_check(user_input, agent_output, context):
-    """Evaluates the agent using DeepEval's Relevancy metric."""
-    metric = AnswerRelevancyMetric(threshold=0.7)
+def run_deepeval_metrics(workflow_data, agent_response, user_input):
+    """
+    Pure DeepEval implementation for Workflow-Checker.
+    Uses LLM-based evaluation for all metrics.
+    """
     
+    # 1. Answer Relevancy Metric
+    # Replaces your old keyword-matching accuracy check.
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.8)
+    
+    # 2. Tone/Style Metric
+    # Replaces the unprofessional_terms list check.
+    tone_metric = StyleMetric(
+        evaluation_params=["professional", "helpful", "concise"],
+        threshold=0.7
+    )
+    
+    # 3. Create the Test Case
     test_case = LLMTestCase(
         input=user_input,
-        actual_output=agent_output,
-        retrieval_context=context 
+        actual_output=agent_response,
+        retrieval_context=[str(workflow_data)] # Passing structure as context for analysis
     )
     
-    metric.measure(test_case)
+    # 4. Measure
+    relevancy_metric.measure(test_case)
+    tone_metric.measure(test_case)
     
-    passed = metric.is_successful()
-    score = metric.score * 100
+    # Calculate scores
+    rel_score = relevancy_metric.score * 100
+    tone_score = tone_metric.score * 100
     
-    return passed, f"    **DeepEval Score:** {score:.2f}% ({'Passed' if passed else 'Failed'})"
-
-def run_all_metrics(workflow_data, agent_response, expected_qa):
-    struct_res = check_structure(workflow_data)
-    tone_passed, tone_msg = check_tone(agent_response) 
-    context = [expected_qa]
-    acc_passed, acc_msg = run_deepeval_check(expected_qa, agent_response, context)
+    # Logic for overall pass (DeepEval logic)
+    passed = relevancy_metric.is_successful() and tone_metric.is_successful()
     
-    overall_passed = struct_res["passed"] and tone_passed and acc_passed
-
+    # Formatting for Discord
     details = (
-        f"{acc_msg}\n"
-        f"{tone_msg}\n"
-        f"{struct_res['message']}"
+        f"    **Accuracy (Relevancy):** {rel_score:.2f}% ({'Passed' if relevancy_metric.is_successful() else 'Failed'})\n"
+        f"    **Tone (Professionalism):** {tone_score:.2f}% ({'Passed' if tone_metric.is_successful() else 'Failed'})\n"
+        f"    **DeepEval Reason:** {relevancy_metric.reason}"
     )
+    
+    return passed, details
 
-    return overall_passed, details
+# Standard orchestrator name for your main.py import
+def run_all_metrics(workflow_data, agent_response, expected_qa):
+    return run_deepeval_metrics(workflow_data, agent_response, expected_qa)
