@@ -24,13 +24,13 @@ def main():
         
         
 
-        # Input matches the response context
-        user_test_input = "What can you do for me?"
-        # Response is 'Appropriate' (Friendly/Helpful) but not 'Professional' (Stiff)
-        actual_agent_response = "I can help you monitor your automation workflows and check for any orphan nodes or structural errors."
-        # Context matches exactly
-        expected_qa_answer = "I can help you monitor your automation workflows and check for any orphan nodes or structural errors."
-       
+        # 1. The Question (Friendly)
+        user_test_input = "Hey, can you tell me what you're doing here?"
+        # 2. The Answer (Appropriate/Helpful)
+        actual_agent_response = "I'm here to help you keep your n8n workflows organized by checking for orphan nodes and structural errors!"
+        # 3. The Context (Exact match for Consistency)
+        expected_qa_answer = "I'm here to help you keep your n8n workflows organized by checking for orphan nodes and structural errors!"
+                
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
         end_time = time.time()
