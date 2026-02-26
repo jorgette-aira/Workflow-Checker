@@ -22,13 +22,8 @@ def main():
         with open(workflow_path, 'r', encoding="utf-8") as f:
             workflow_data = json.load(f)
         
-        
-
-        # 1. The Question (Friendly)
         user_test_input = "Hey, can you tell me what you're doing here?"
-        # 2. The Answer (Appropriate/Helpful)
         actual_agent_response = "I'm here to help you keep your n8n workflows organized by checking for orphan nodes and structural errors!"
-        # 3. The Context (Exact match for Consistency)
         expected_qa_answer = "I'm here to help you keep your n8n workflows organized by checking for orphan nodes and structural errors!"
                 
         start_time = time.time()
