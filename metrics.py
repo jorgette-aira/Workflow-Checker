@@ -28,15 +28,15 @@ def check_workflow_structure(workflow_data):
     has_model = "ai_languageModel" in str(connections)
 
     if not has_agent:
-        return False, "❌ FAIL: No AI Agent node found."
+        return False, "**Structure Error**: No AI Agent node found."
     if not has_model:
-        return False, "❌ FAIL: AI Agent has no Model connected."
+        return False, "**Structure Error**: AI Agent has no Model connected."
     if orphans:
         # We list the specific orphans to help you find them in n8n
         orphan_list = ", ".join(orphans)
-        return False, f"❌ FAIL: Orphan nodes detected: [{orphan_list}]. Please connect or delete them."
+        return False, f"**Structure Error**: Orphan nodes detected: [{orphan_list}]. Please connect or delete them."
     
-    return True, "✅ Structure: Correct (No orphans, Agent & Model active)."
+    return True, "**Structure**: Correct (No orphans, Agent & Model active)."
     
 def run_deepeval_metrics(workflow_data, agent_response, user_input, context):
     """
