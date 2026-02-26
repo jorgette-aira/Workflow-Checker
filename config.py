@@ -1,4 +1,4 @@
-N8N_WEBHOOK_URL = "https://jorgette.tail3679cb.ts.net/webhook/Workflow-Checker"
+N8N_WEBHOOK_URL = "https://jorgette.tail3679cb.ts.net/webhook-test/Workflow-Checker"
 DEVOPS_ROLE_ID = "1473635058853085388" 
 
 USER_MAP = {
