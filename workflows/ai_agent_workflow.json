@@ -2,20 +2,6 @@
   "nodes": [
     {
       "parameters": {
-        "language": "pythonNative",
-        "pythonCode": "# n8n Code node (Python)\n\nreturn [\n  {\n    \"json\": {\n      \"message\": \"Test Okay\"\n    }\n  }\n]\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -208,
-        464
-      ],
-      "id": "aabe4cfa-ab0e-4962-895b-194404831dbe",
-      "name": "Code in Python (Native)"
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -57,43 +43,6 @@
       ],
       "id": "7c6cc496-0e9c-42ed-a77c-36f77df60f5a",
       "name": "If1"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://graph.facebook.com/v24.0/{{ $('Webhookzzzzzzz').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "recipient",
-              "value": "={'id':'{{ $('Webhookzzzzzzz').item.json.body.entry[0].messaging[0].sender.id }}'}"
-            },
-            {
-              "name": "messaging_type",
-              "value": "RESPONSE"
-            },
-            {
-              "name": "message",
-              "value": "={{ { text: `I've already informed our sales team regarding your inquiry. Kindly wait na lang po Ma'am, thank you for your patience!` } }}"
-            },
-            {
-              "name": "access_token",
-              "value": "EABBAttGj2s8BQLZCnra1jpPL7BmZCUNw1RkDIZBQy3jO5CkrDVyX4QSHxSZCqO0uwRhZAUfZBHzZA3ZCEUD0ro2tfRaKXVmp4ryYnxqGmPf6wtz2B7ebpmL0E398MQa4po5UnT64PcmxdvvKpkjuCgg7MhnZAb6ZBZBqBFaGvVACumYCN3ZBKZCqnM6qZCIFy8Ebsyqn8OaoWCZBwZDZD"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -1536,
-        1744
-      ],
-      "id": "d9445ae6-fdab-4580-ba4c-8cf17330f98a",
-      "name": "Notify Admin"
     },
     {
       "parameters": {
@@ -1338,79 +1287,6 @@
     },
     {
       "parameters": {
-        "operation": "upsert",
-        "dataTableId": {
-          "__rl": true,
-          "value": "7mQjLaqIol1GjMfk",
-          "mode": "list",
-          "cachedResultName": "PizzaDiDi - Contacts",
-          "cachedResultUrl": "/projects/RMJbV3yUv517JcM0/datatables/7mQjLaqIol1GjMfk"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Contact_ID": "={{ $json.body.entry[0].messaging[0].sender.id }}",
-            "First_Name": "={{ $json.first_name }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "Contact_ID",
-              "displayName": "Contact_ID",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "First_Name",
-              "displayName": "First_Name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "Last_Name",
-              "displayName": "Last_Name",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "user_honorifics",
-              "displayName": "user_honorifics",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.dataTable",
-      "typeVersion": 1.1,
-      "position": [
-        -2080,
-        784
-      ],
-      "id": "cbd8f859-5b48-4ae7-8210-e7d149a92787",
-      "name": "Upsert row(s)1"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "H5tRL7LOJkRCyfz2sLfOY",
@@ -1765,21 +1641,6 @@
       "typeVersion": 1,
       "id": "580a0573-c39f-47bf-b765-53464bd53a66",
       "name": "Sticky Note5"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "WITH perform_workflow_upsert AS (\n  INSERT INTO main_workflows (recipient_id, workflow_id)\n  VALUES (\n    '{{ $json.body.entry[0].messaging[0].recipient.id }}', \n    '{{ $workflow.id }}'\n  )\n  ON CONFLICT (recipient_id) \n  DO UPDATE \n  SET workflow_id = EXCLUDED.workflow_id\n  WHERE main_workflows.workflow_id != EXCLUDED.workflow_id\n)\nUPDATE messenger_contacts\nSET main_workflow_id = '{{ $workflow.id }}'\nWHERE recipient_id = '{{ $json.body.entry[0].messaging[0].recipient.id }}';",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -2640,
-        1536
-      ],
-      "id": "00f6a257-d0f1-46a8-9f51-97933d761e97",
-      "name": "Workflow ID extractor"
     },
     {
       "parameters": {
@@ -2658,11 +2519,6 @@
             }
           }
         ]
-      }
-    ],
-    "Workflow ID extractor": [
-      {
-        "success": true
       }
     ]
   },
