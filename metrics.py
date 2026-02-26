@@ -38,7 +38,7 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
     tone_score = tone_metric.score * 100
     
     # Overall Pass/Fail logic
-    passed = relevancy_metric.is_successful() and tone_metric.is_successful() and hallucination_metric.is_successful())
+    passed = relevancy_metric.is_successful() and tone_metric.is_successful() and hallucination_metric.is_successful()
     
     # Formatting for your Discord Notification
     details = (
