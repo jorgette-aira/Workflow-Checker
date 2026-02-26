@@ -19,7 +19,7 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
         name="Tone",
         criteria="Determine if the response is professional, helpful, and avoids informal slang.",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
-        threshold=0.7
+        threshold=0.7,
         model=cheap_model
     )
     
