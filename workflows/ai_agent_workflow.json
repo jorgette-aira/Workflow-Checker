@@ -642,33 +642,6 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "1e0mtrj-gl4i8R4fjgLfvEZKobxTjLsC4hHyeqh9Vzpk",
-          "mode": "list",
-          "cachedResultName": "PizzaDiDi x SOFI",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e0mtrj-gl4i8R4fjgLfvEZKobxTjLsC4hHyeqh9Vzpk/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": 672441042,
-          "mode": "list",
-          "cachedResultName": "FAQ",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e0mtrj-gl4i8R4fjgLfvEZKobxTjLsC4hHyeqh9Vzpk/edit#gid=672441042"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
-      "position": [
-        -1008,
-        96
-      ],
-      "id": "ab6895da-0c05-4a77-9918-1b8de24466b3",
-      "name": "Google Sheets"
-    },
-    {
-      "parameters": {
         "rules": {
           "values": [
             {
@@ -967,21 +940,6 @@
       ],
       "id": "1fb1005a-168c-4813-a7ea-e3f838906709",
       "name": "saveData"
-    },
-    {
-      "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Webhookzzzzzzz').item.json.body.entry[0].messaging[0].sender.id }}",
-        "tableName": "bones_history"
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
-      "typeVersion": 1.3,
-      "position": [
-        -192,
-        2544
-      ],
-      "id": "171708a5-1dc2-43f4-b6de-99629bda24df",
-      "name": "Postgres Chat Memory2"
     },
     {
       "parameters": {
@@ -1609,38 +1567,6 @@
       ],
       "id": "71d00834-6c94-4604-b5a6-aeca1f048971",
       "name": "CLEAR OUTPUT"
-    },
-    {
-      "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Webhook').item.json.body_entry[0].json.body.entry[0].messaging[0].sender.id }}",
-        "collectionName": "pizzadidi_history",
-        "databaseName": "SOFI",
-        "contextWindowLength": 20
-      },
-      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
-      "typeVersion": 1,
-      "position": [
-        -832,
-        2448
-      ],
-      "id": "6be4cda2-6111-4c7e-ab08-9414e9fedb20",
-      "name": "MongoDB Chat Memory"
-    },
-    {
-      "parameters": {
-        "content": "## Workflow ID",
-        "height": 432,
-        "width": 800
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -2736,
-        1440
-      ],
-      "typeVersion": 1,
-      "id": "580a0573-c39f-47bf-b765-53464bd53a66",
-      "name": "Sticky Note5"
     },
     {
       "parameters": {
