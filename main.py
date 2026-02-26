@@ -34,7 +34,7 @@ def main():
 
 
         if execution_duration > 10.0:
-            details += f"\n⚠️ Warning: High latency ({execution_duration}s)"
+            details += f"\n⚠️ **Warning**: High latency ({execution_duration}s)"
 
         print(f"📊 Metrics completed in {execution_duration}s. Result: {'PASS' if passed else 'FAIL'}")
         
