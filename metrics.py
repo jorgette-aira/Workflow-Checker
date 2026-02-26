@@ -38,8 +38,8 @@ def run_deepeval_metrics(agent_response, user_input, context):
         name="Tone",
         criteria=(
             "The tone should be appropriate."
-            "helpful, clear, and direct. It does not need to be overly formal, "
-            "but must avoid slang and maintain a supportive, peer-like energy."
+            "It does not need to be overly formal, "
+            "and maintain a supportive, peer-like energy."
         ),
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
         threshold=0.7
