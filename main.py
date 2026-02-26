@@ -22,8 +22,9 @@ def main():
         with open(workflow_path, 'r') as f:
             workflow_data = json.load(f)
         
-        actual_agent_response = "Hello! I am your assistant from Batangas."
-        expected_qa_answer = "assistant Batangas" 
+        
+        actual_agent_response = "For your CALABARZON project, we are training the Random Forest model using Sentinel-2 imagery combined with spectral indices and topographic data to improve LULC accuracy."
+        expected_qa_answer = "The response should mention using Sentinel-2 data, spectral indices, and topographic data for training the Random Forest model."
 
 
         start_time = time.time()
