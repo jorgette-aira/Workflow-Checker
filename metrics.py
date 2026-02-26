@@ -36,7 +36,9 @@ def run_deepeval_metrics(agent_response, user_input, context):
     relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
     tone_metric = GEval(
         name="Tone",
-        criteria="Professional and Helpful language.",
+        criteria="The tone should be appropriate for a technical assistant: "
+            "helpful, clear, and direct. It does not need to be overly formal, "
+            "but must avoid slang and maintain a supportive, peer-like energy.",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
         threshold=0.7
     )
