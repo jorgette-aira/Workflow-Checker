@@ -25,14 +25,14 @@ def main():
         
         # 1. actual_agent_response: What the bot actually said
         actual_agent_response = (
-            "I am a technical assistant designed to monitor and evaluate automated "
-            "workflows to ensure they meet quality and structural standards."
+            "This system provides automated monitoring for workflow integrity, "
+            "ensuring all architectural components and LLM metrics meet predefined standards."
         )
 
         # 2. expected_qa_answer: The "Ground Truth" for Accuracy and Hallucination
         expected_qa_answer = (
-            "I am a technical assistant designed to monitor and evaluate automated "
-            "workflows to ensure they meet quality and structural standards."    
+            "This system provides automated monitoring for workflow integrity, "
+            "ensuring all architectural components and LLM metrics meet predefined standards."    
         )
         
         start_time = time.time()
