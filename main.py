@@ -23,9 +23,8 @@ def main():
             workflow_data = json.load(f)
         
         
-        actual_agent_response = "For your CALABARZON project, we are training the Random Forest model using Sentinel-2 imagery combined with spectral indices and topographic data to improve LULC accuracy."
-        expected_qa_answer = "The response should mention using Sentinel-2 data, spectral indices, and topographic data for training the Random Forest model."
-
+        actual_agent_response = "I am a virtual assistant designed to help you with your Cpelympics Discord bot and LULC thesis project."
+        expected_qa_answer = "The agent should explain that it assists with the Cpelympics bot and the LULC thesis."
 
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
@@ -60,7 +59,7 @@ def main():
     print(f"📡 Triggering n8n: {config.N8N_WEBHOOK_URL}")
 
     try:
-        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=10)
+        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=30)
         print(f"✅ n8n Response: {response.status_code}")
     except Exception as e:
         print(f"❌ Network Error: {e}")
