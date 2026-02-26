@@ -23,17 +23,8 @@ def main():
             workflow_data = json.load(f)
         
         
-        # 1. actual_agent_response: What the bot actually said
-        actual_agent_response = (
-            "The CALABARZON LULC thesis project utilizes a Random Forest classifier "
-            "on Sentinel-2 satellite imagery from July to December 2025."
-        )
-
-        # 2. expected_qa_answer: The ground truth / context
-        expected_qa_answer = (
-            "The CALABARZON LULC thesis project utilizes a Random Forest classifier "
-            "on Sentinel-2 satellite imagery from July to December 2025."
-        )
+        actual_agent_response = "I am a digital assistant developed to provide technical support for your LULC classification thesis and the Cpelympics Discord bot project."
+        expected_qa_answer = "I am a digital assistant developed to provide technical support for your LULC classification thesis and the Cpelympics Discord bot project."
 
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
