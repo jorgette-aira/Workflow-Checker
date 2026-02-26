@@ -23,9 +23,18 @@ def main():
             workflow_data = json.load(f)
         
         
-        actual_agent_response = "I am a digital assistant developed to provide technical support for your LULC classification thesis and the Cpelympics Discord bot project."
-        expected_qa_answer = "I am a digital assistant developed to provide technical support for your LULC classification thesis and the Cpelympics Discord bot project."
+        # 1. actual_agent_response: What the bot actually said
+        actual_agent_response = (
+            "I am a technical assistant designed to monitor and evaluate automated "
+            "workflows to ensure they meet quality and structural standards."
+        )
 
+        # 2. expected_qa_answer: The "Ground Truth" for Accuracy and Hallucination
+        expected_qa_answer = (
+            "I am a technical assistant designed to monitor and evaluate automated "
+            "workflows to ensure they meet quality and structural standards."    
+        )
+        
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
         end_time = time.time()
