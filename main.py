@@ -24,10 +24,13 @@ def main():
         
         
 
-        user_test_input = "What is the purpose of this technical system?"
-        actual_agent_response = "This system provides automated monitoring for workflow integrity and ensures all architectural components meet predefined standards."
-        expected_qa_answer = "This system provides automated monitoring for workflow integrity and ensures all architectural components meet predefined standards."
-
+        # Input matches the response context
+        user_test_input = "What can you do for me?"
+        # Response is 'Appropriate' (Friendly/Helpful) but not 'Professional' (Stiff)
+        actual_agent_response = "I can help you monitor your automation workflows and check for any orphan nodes or structural errors."
+        # Context matches exactly
+        expected_qa_answer = "I can help you monitor your automation workflows and check for any orphan nodes or structural errors."
+       
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
         end_time = time.time()
