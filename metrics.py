@@ -25,7 +25,7 @@ def run_deepeval_metrics(workflow_data, agent_response, user_input):
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_response,
-        context=context_list
+        context=context
     )
     
     # 4. Measure
