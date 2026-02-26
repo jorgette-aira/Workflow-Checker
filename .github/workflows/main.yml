@@ -24,7 +24,6 @@ jobs:
 
       - name: Run Master Controller
         env:
-          # Pass your secrets to the script as environment variables
           N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_REPOSITORY: ${{ github.repository }}
