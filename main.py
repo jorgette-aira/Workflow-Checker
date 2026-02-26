@@ -23,18 +23,11 @@ def main():
             workflow_data = json.load(f)
         
         
-        # 1. actual_agent_response: What the bot actually said
-        actual_agent_response = (
-            "This system provides automated monitoring for workflow integrity, "
-            "ensuring all architectural components and LLM metrics meet predefined standards."
-        )
 
-        # 2. expected_qa_answer: The "Ground Truth" for Accuracy and Hallucination
-        expected_qa_answer = (
-            "This system provides automated monitoring for workflow integrity, "
-            "ensuring all architectural components and LLM metrics meet predefined standards."    
-        )
-        
+        user_test_input = "What is the purpose of this technical system?"
+        actual_agent_response = "This system provides automated monitoring for workflow integrity and ensures all architectural components meet predefined standards."
+        expected_qa_answer = "This system provides automated monitoring for workflow integrity and ensures all architectural components meet predefined standards."
+
         start_time = time.time()
         passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
         end_time = time.time()
