@@ -21,6 +21,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install deepeval
+          
+      - name: Verify Workflow File Existence
+        run: |
+          if [ ! -f ./ai_agent_workflow.json ]; then
+            echo "**ERROR**: workflow file not found!"
+            exit 1
+          fi
 
       - name: Run Master Controller
         env:
