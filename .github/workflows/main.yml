@@ -24,7 +24,7 @@ jobs:
           
       - name: Verify Workflow File Existence
         run: |
-          if [ ! -f ./workflowws/ai_agent_workflow.json ]; then
+          if [ ! -f ./workflows/ai_agent_workflow.json ]; then
             echo "ERROR: workflow file not found!"
             exit 1
           fi
