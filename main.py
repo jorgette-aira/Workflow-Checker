@@ -4,6 +4,9 @@ import json
 import time  
 import config
 from metrics import run_all_metrics
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def main():
     print("🚀 Script started successfully!")
@@ -59,7 +62,7 @@ def main():
     print(f"📡 Triggering n8n: {config.N8N_WEBHOOK_URL}")
 
     try:
-        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=30)
+        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=30, verify=False)
         print(f"✅ n8n Response: {response.status_code}")
     except Exception as e:
         print(f"❌ Network Error: {e}")
