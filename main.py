@@ -41,14 +41,13 @@ def main():
             details += f"\n⚠️ **Warning**: High latency ({execution_duration}s)"
 
         print(f"📊 Metrics completed in {execution_duration}s. Result: {'PASS' if passed else 'FAIL'}")
-
     else:
         print(f"❌ N8N Trigger Failed: {response.status_code}")
-        return
+        passed = False
+        details = f"N8N Trigger Failed with Status: {response.status_code}"
         
     except Exception as e:
         passed = False
-        execution_duration = 0
         details = f"System Error: {str(e)}"
         print(f"❌ Error during metrics: {e}")
 
@@ -65,6 +64,7 @@ def main():
     }
 
     print(f"📡 Triggering n8n: {config.N8N_WEBHOOK_URL}")
+
 
     try:
         final_response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=30)
