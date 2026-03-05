@@ -4,9 +4,6 @@ import json
 import time  
 import config
 from metrics import run_all_metrics
-import urllib3
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def main():
     print("🚀 Script started successfully!")
