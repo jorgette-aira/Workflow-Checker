@@ -43,7 +43,7 @@ def main():
         print(f"📊 Metrics completed in {execution_duration}s. Result: {'PASS' if passed else 'FAIL'}")
 
     else:
-        print(f N8N Trigger Failed: {response.status_code}")
+        print(f" N8N Trigger Failed: {response.status_code}")
         return
         
     except Exception as e:
