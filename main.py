@@ -38,7 +38,7 @@ def main():
 
             start_time = time.time()
             # FIX: Variables passed here must match the names defined above
-            passed, full_report = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
+            passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
             end_time = time.time()
             
             execution_duration = round(end_time - start_time, 2)
@@ -47,9 +47,6 @@ def main():
                 details += f"\n⚠️ **Warning**: High latency ({execution_duration}s)"
 
             print(f"📊 Metrics completed in {execution_duration}s. Result: {'PASS' if passed else 'FAIL'}")
-        else:
-            print(f"❌ n8n Trigger Failed: {response.status_code}")
-            return # Exit if we can't get an answer to test
             
     except Exception as e:
         passed = False
@@ -61,7 +58,7 @@ def main():
     mention_target = f"<@&{role_id}>" if passed else f"<@{user_id}>"
 
     # 3. Payload for Discord via n8n
-    final_payload = {
+    payload = {
         "status": "pass" if passed else "fail",
         "builder_name": builder_github_username,
         "mention_target": mention_target,
@@ -73,8 +70,8 @@ def main():
 
     try:
         # Using a timeout to prevent the Action from hanging forever
-        final_response = requests.post(config.N8N_WEBHOOK_URL, json=final_payload, timeout=30)
-        print(f"✅ Final Result Sent: {final_response.status_code}")
+        response = requests.post(config.N8N_WEBHOOK_URL, json=final_payload, timeout=30)
+        print(f"✅ Final Result Sent: {response.status_code}")
         
         # CRITICAL: Exit with 1 if failed so GitHub Action shows a Red X
         if not passed:
