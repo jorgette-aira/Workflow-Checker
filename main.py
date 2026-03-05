@@ -59,7 +59,7 @@ def main():
     print(f"📡 Triggering n8n: {config.N8N_WEBHOOK_URL}")
 
     try:
-        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=30)
+        response = requests.post(config.N8N_WEBHOOK_URL, json=payload, timeout=30, verify=False)
         print(f"✅ n8n Response: {response.status_code}")
     except Exception as e:
         print(f"❌ Network Error: {e}")
