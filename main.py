@@ -38,7 +38,7 @@ def main():
 
             start_time = time.time()
             # FIX: Variables passed here must match the names defined above
-            passed, details = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
+            passed, full_report = run_all_metrics(workflow_data, actual_agent_response, expected_qa_answer)
             end_time = time.time()
             
             execution_duration = round(end_time - start_time, 2)
@@ -54,7 +54,7 @@ def main():
     except Exception as e:
         passed = False
         execution_duration = 0
-        details = f"System Error: {str(e)}"
+        details = full_report
         print(f"❌ Error during metrics: {e}")
 
     # 2. Mentions
