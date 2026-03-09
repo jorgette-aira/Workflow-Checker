@@ -34,8 +34,9 @@ def main():
             workflow_data = json.load(f)
         
         # 3. Define the test case parameters
-        user_test_input = "Hey, can you tell me what you're doing here?"
-        expected_qa_answer = "I'm here to help you keep your n8n workflows organized by checking for orphan nodes and structural errors!"
+        user_test_input = "What is the penalty for hitting a ball out of bounds?"
+        expected_qa_answer = "The penalty is stroke and distance; you must play a ball from where the previous stroke was made and add one penalty stroke."
+
         
         print(f"🤖 Pinging AI Agent at {AGENT_WEBHOOK_URL}...")
         
