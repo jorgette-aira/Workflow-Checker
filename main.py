@@ -69,11 +69,6 @@ def main():
 
         print(f"📊 Metrics completed in {execution_duration}s. Result: {'PASS' if passed else 'FAIL'}")
         
-    except requests.exceptions.RequestException as e:
-        passed = False
-        execution_duration = 0
-        details = f"**Agent Connection Error**: Could not reach or get a response from the AI Agent webhook. {str(e)}"
-        print(f"❌ Network Error talking to Agent: {e}")
         
     except Exception as e:
         passed = False
