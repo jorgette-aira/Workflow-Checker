@@ -52,7 +52,11 @@ def main():
         
         # Assuming your n8n Respond to Webhook node returns JSON like {"output": "..."}
         response_data = agent_response.json()
-        actual_agent_response = response_data.get("output", str(response_data))
+        
+        # This safely checks for 'output' but falls back to 'text' just in case
+        actual_agent_response = response_data.get("output") or response_data.get("text")
+        
+        print(f"🤖 AI Answer: {actual_agent_response}")
         
         agent_end_time = time.time()
         print(f"✅ AI Agent responded in {round(agent_end_time - agent_start_time, 2)}s")
