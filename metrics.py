@@ -1,5 +1,8 @@
+import os
 from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric, FaithfulnessMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
 def check_workflow_structure(workflow_data):
     """Scans the JSON for AI Agent nodes and orphans."""
@@ -32,6 +35,10 @@ def check_workflow_structure(workflow_data):
     return True, "**Structure**: Correct (Agent & Model active)."
 
 def run_deepeval_metrics(agent_response, user_input, context):
+
+    if not os.environ.get("OPENAI_API_KEY"):
+        return False, "❌ Error: OPENAI_API_KEY is missing from environment."
+        
     relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
     hallucination_metric = HallucinationMetric(threshold=0.5)
 
