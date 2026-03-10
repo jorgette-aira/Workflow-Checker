@@ -1,6 +1,6 @@
 [
   {
-    "input": "Is it a fault if the player touches the net with their racket?",
+    "input": "in the sport badminton. Is it a fault if the player touches the net with their racket?",
     "expected_output": "Yes, it is a fault if the player, their racket, or their clothing touches the net or its supports during a rally."
   }
 ]
