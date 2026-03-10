@@ -5,6 +5,9 @@ import time
 import config
 from metrics import run_all_metrics
 import urllib3
+from dotenv import load_dotenv
+
+load_dotenv
 
 # Suppress insecure request warnings if using self-signed certs over Tailscale
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
