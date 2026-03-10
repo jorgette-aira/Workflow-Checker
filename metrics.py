@@ -5,14 +5,12 @@ from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
 def check_workflow_structure(workflow_data):
-    """Scans the JSON for AI Agent nodes and orphans."""
     nodes = workflow_data.get("nodes", [])
     connections = workflow_data.get("connections", {})
     
     all_node_names = {n.get("name") for n in nodes}
     connected_nodes = set()
-    
-    # Simple check for n8n connection structure
+
     for source_node, targets in connections.items():
         connected_nodes.add(source_node)
         for connection_type in targets.values():
@@ -59,7 +57,6 @@ def run_deepeval_metrics(agent_response, user_input, context):
     tone_metric.measure(test_case)
     hallucination_metric.measure(test_case)
     
-    # Calculate scores
     hallucination_score = hallucination_metric.score
     passed = (relevancy_metric.is_successful() and 
               tone_metric.is_successful() and 
