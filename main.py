@@ -54,6 +54,9 @@ def main():
         
         # Assuming your n8n Respond to Webhook node returns JSON like {"output": "..."}
         response_data = agent_response.json()
+
+        if isinstance(rsponse_data, list):
+            response_data = response_data[0]
         
         # This safely checks for 'output' but falls back to 'text' just in case
         actual_agent_response = response_data.get("output") or response_data.get("text")
