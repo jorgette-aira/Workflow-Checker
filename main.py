@@ -1,13 +1,14 @@
 import os
+from dotenv import load_dotenv
 import requests
 import json
 import time  
 import config
 from metrics import run_all_metrics
 import urllib3
-from dotenv import load_dotenv
 
-load_dotenv() 
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def main():
