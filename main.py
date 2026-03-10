@@ -7,8 +7,7 @@ import config
 from metrics import run_all_metrics
 import urllib3
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(os.path.join(basedir, '.env'))
+load_dotenv()
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def main():
