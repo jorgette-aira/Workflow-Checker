@@ -45,6 +45,7 @@ def main():
     for index, case in enumerate(test_cases):
         user_input = case["input"]
         expected_qa = case["expected_output"]
+        time.sleep(2)
         
         print(f"\n🧪 Test {index + 1}/{len(test_cases)}: {user_input}")
         
@@ -74,7 +75,9 @@ def main():
 
         except Exception as e:
             overall_passed = False
-            all_test_details.append(f"**Test {index+1}:** ❌ System Error: {str(e)}")
+            error_msg = f"❌ Test {index+1} Failed: {str(e)}"
+            all_test_details.append(error_msg)
+            print(error_msg)
 
     # 4. Final Notification
     mention_target = f"<@&{role_id}>" if overall_passed else f"<@{user_id}>"
