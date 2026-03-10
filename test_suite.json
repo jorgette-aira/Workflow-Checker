@@ -1,0 +1,14 @@
+[
+  {
+    "input": "What happens if the shuttlecock lands on the boundary line?",
+    "expected_output": "The shuttlecock is considered 'in' if it lands on any part of the boundary line."
+  },
+  {
+    "input": "How many points are needed to win a standard set?",
+    "expected_output": "A set is won by the first side to reach 21 points. If the score is 20-all, the side that gains a 2-point lead wins."
+  },
+  {
+    "input": "Is it a fault if the player touches the net with their racket?",
+    "expected_output": "Yes, it is a fault if the player, their racket, or their clothing touches the net or its supports during a rally."
+  }
+]
