@@ -74,7 +74,7 @@ def run_deepeval_metrics(agent_response, user_input, context):
     
     return passed, details
 
-def run_all_metrics(workflow_data, agent_response, expected_qa):
+def run_all_metrics(workflow_data, agent_response, expected_qa, user_input):
     struct_passed, struct_msg = check_workflow_structure(workflow_data)
     
 
