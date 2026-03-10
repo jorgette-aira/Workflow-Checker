@@ -5,6 +5,5 @@ USER_MAP = {
     # Discord ID
     "Jorgette": "850349575486177322", 
     "Allen": "323711023733538826",
-    "Neal": "1343136858577829898",
     "Default": DEVOPS_ROLE_ID
 }
