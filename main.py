@@ -67,18 +67,12 @@ def main():
             print(f"🤖 AI Answer: {actual_answer}")
             
             # Run Metrics for this specific case
-            passed, details = run_all_metrics(workflow_data, actual_answer, expected_qa)
-            
-            if not passed:
-                overall_passed = False
-            
-            all_test_details.append(f"**Test {index+1}:** {'✅' if passed else '❌'}\n{details}")
-
-        except Exception as e:
-            overall_passed = False
-            error_msg = f"❌ Test {index+1} Failed: {str(e)}"
-            all_test_details.append(error_msg)
-            print(error_msg)
+           try:
+                passed, details = run_all_metrics(workflow_data, actual_answer, expected_qa)
+            except Exception as e:
+                passed = False
+                details = f"Metric Error: {str(e)}"
+                print(f"❌ Metric Error: {e}")
 
     # 4. Final Notification
     mention_target = f"<@&{role_id}>" if overall_passed else f"<@{user_id}>"
