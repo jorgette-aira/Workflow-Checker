@@ -33,10 +33,9 @@ def main():
         with open(workflow_path, 'r', encoding="utf-8") as f:
             workflow_data = json.load(f)
         
-        # 3. Define the test case parameters
-        user_test_input = "What is the penalty for hitting a ball out of bounds?"
-        expected_qa_answer = "The penalty is stroke and distance; you must play a ball from where the previous stroke was made and add one penalty stroke."
-
+       # 3. Define the test case parameters for Badminton
+        user_test_input = "What happens if the shuttlecock lands outside the boundary lines?"
+        expected_qa_answer = "If the shuttlecock lands outside the boundary lines, it is a 'fault.' The opponent wins the rally and earns a point."
         
         print(f"🤖 Pinging AI Agent at {AGENT_WEBHOOK_URL}...")
         
