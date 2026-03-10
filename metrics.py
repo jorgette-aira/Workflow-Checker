@@ -45,7 +45,7 @@ def run_deepeval_metrics(agent_response, user_input, context):
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_response,
-        context=context
+        retrieval_context=context
     )
     
     relevancy_metric.measure(test_case)
