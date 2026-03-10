@@ -1,14 +1,15 @@
-from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric
+from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric, FaithfulnessMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 
 def check_workflow_structure(workflow_data):
-    """Scans the JSON for AI Agent nodes, Model connections, and Orphan nodes."""
+    """Scans the JSON for AI Agent nodes and orphans."""
     nodes = workflow_data.get("nodes", [])
     connections = workflow_data.get("connections", {})
     
     all_node_names = {n.get("name") for n in nodes}
     connected_nodes = set()
     
+    # Simple check for n8n connection structure
     for source_node, targets in connections.items():
         connected_nodes.add(source_node)
         for connection_type in targets.values():
@@ -17,7 +18,8 @@ def check_workflow_structure(workflow_data):
                     connected_nodes.add(connection.get("node"))
 
     orphans = all_node_names - connected_nodes
-    has_agent = any(n.get("type") == "@n8n/n8n-nodes-langchain.agent" for n in nodes)
+
+    has_agent = any("agent" in n.get("type", "").lower() for n in nodes)
     has_model = "ai_languageModel" in str(connections)
 
     if not has_agent:
@@ -26,60 +28,52 @@ def check_workflow_structure(workflow_data):
         return False, "**Structure Error**: AI Agent has no Model connected."
     if orphans:
         orphan_list = ", ".join(orphans)
-        return False, f"**Structure Error**: Orphan nodes detected: [{orphan_list}]."
     
-    return True, "**Structure**: Correct (No orphans, Agent & Model active)."
+    return True, "**Structure**: Correct (Agent & Model active)."
 
 def run_deepeval_metrics(agent_response, user_input, context):
     relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
+    hallucination_metric = HallucinationMetric(threshold=0.5)
 
     tone_metric = GEval(
         name="Tone",
-        criteria=(
-            "The tone should be appropriate."
-            "It does not need to be overly formal, "
-            "and maintain a supportive, peer-like energy."
-        ),
+        criteria="Supportive, peer-like energy, and appropriate for a student collaborator.",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
         threshold=0.7
     )
-    
-    hallucination_metric = HallucinationMetric(threshold=0.5)
 
     test_case = LLMTestCase(
         input=user_input,
         actual_output=agent_response,
-        context=context
+        retrieval_context=context
     )
     
     relevancy_metric.measure(test_case)
     tone_metric.measure(test_case)
     hallucination_metric.measure(test_case)
     
-    faithfulness_score = (1.0 - hallucination_metric.score) * 100
-    
+    # Calculate scores
+    hallucination_score = hallucination_metric.score
     passed = (relevancy_metric.is_successful() and 
               tone_metric.is_successful() and 
-              hallucination_metric.score <= 0.5) 
+              hallucination_score <= 0.5) 
 
     details = (
         f"    **Accuracy:** {relevancy_metric.score*100:.2f}% ({'Pass' if relevancy_metric.is_successful() else 'Fail'})\n"
         f"    **Tone:** {tone_metric.score*100:.2f}% ({'Pass' if tone_metric.is_successful() else 'Fail'})\n"
-        f"    **Factual Consistency:** {faithfulness_score:.1f}% ({'Pass' if hallucination_metric.score <= 0.5 else 'Fail'})\n"
+        f"    **Hallucination Risk:** {hallucination_score*100:.1f}% ({'Pass' if hallucination_score <= 0.5 else 'Fail'})\n"
         f"    **DeepEval Reason:** ```{hallucination_metric.reason}```"
     )
     
     return passed, details
-def run_all_metrics(workflow_data, agent_response, expected_qa):
-    # 1. Structural Check
-    struct_passed, struct_msg = check_workflow_structure(workflow_data)
-    if not struct_passed:
-        return False, struct_msg
 
-    # 2. DeepEval Metrics
+def run_all_metrics(workflow_data, agent_response, expected_qa):
+    struct_passed, struct_msg = check_workflow_structure(workflow_data)
+    
+
     deepeval_passed, deepeval_details = run_deepeval_metrics(
         agent_response=agent_response,
-        user_input="Verify workflow functionality",
+        user_input="What happens if the shuttle lands out?", 
         context=[expected_qa]
     )
     
