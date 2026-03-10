@@ -89,7 +89,7 @@ def main():
         "builder_name": builder_github_username,
         "mention_target": mention_target,
         "test_results": f"### Batch Results Summary:\n{full_report}",
-        "execution_time": "N/A (Batch)" 
+        "execution_time": "N/A" 
     }
 
     print(f"📡 Sending final results to Discord...")
