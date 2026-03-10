@@ -80,7 +80,7 @@ def run_all_metrics(workflow_data, agent_response, expected_qa):
 
     deepeval_passed, deepeval_details = run_deepeval_metrics(
         agent_response=agent_response,
-        user_input=actual_user_input, 
+        user_input=user_input, 
         context=[expected_qa]
     )
     
