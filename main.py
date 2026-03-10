@@ -57,6 +57,10 @@ def main():
         actual_agent_response = response_data.get("output") or response_data.get("text")
         
         print(f"🤖 AI Answer: {actual_agent_response}")
+
+        if not actual_agent_response:
+            print("⚠️ WARNING: The AI Agent returned an empty response! Check n8n logs.")
+            actual_agent_response = "No response received from Agent."
         
         agent_end_time = time.time()
         print(f"✅ AI Agent responded in {round(agent_end_time - agent_start_time, 2)}s")
