@@ -47,7 +47,7 @@ def main():
         expected_qa = case["expected_output"]
         time.sleep(2)
         
-        print(f"\n🧪 Test {index + 1}/{len(test_cases)}: {user_input}")
+        print(f"🧪 Testing: {user_test_input}")
         
         try:
             # Trigger n8n Agent
@@ -64,7 +64,8 @@ def main():
                 response_data = response_data[0]
             
             actual_answer = response_data.get("output") or response_data.get("text") or "No response"
-
+            print(f"🤖 AI Answer: {actual_answer}")
+            
             # Run Metrics for this specific case
             passed, details = run_all_metrics(workflow_data, actual_answer, expected_qa)
             
