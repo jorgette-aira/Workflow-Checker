@@ -24,7 +24,7 @@ def main():
     NOTIFICATION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", config.N8N_WEBHOOK_URL)
     
     # You will need to add this new secret to your GitHub Actions and config.py
-    AGENT_WEBHOOK_URL = os.getenv("N8N_AGENT_WEBHOOK_URL", "https://your-tailscale-url/webhook/agent-test")
+    AGENT_WEBHOOK_URL = os.getenv("N8N_AGENT_WEBHOOK_URL")
 
     workflow_path = "workflows/ai_agent_workflow.json"
     if not os.path.exists(workflow_path):
