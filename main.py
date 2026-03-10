@@ -47,7 +47,7 @@ def main():
         expected_qa = case["expected_output"]
         time.sleep(2)
         
-        print(f"🧪 Testing: {user_test_input}")
+        print(f"🧪 Testing: {user_input}")
         
         try:
             # Trigger n8n Agent
