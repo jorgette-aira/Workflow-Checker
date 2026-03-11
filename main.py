@@ -30,10 +30,18 @@ def main():
     user_test_input = "What happens if the shuttlecock lands outside the boundary lines?"
     expected_qa_answer = "If the shuttlecock lands outside the boundary lines, it is a 'fault.' The opponent wins the rally and earns a point."
 
-    # 3. Build Platform-Specific Payload
+    # 3. Build Platform-Specific Payload (ENRICHED FOR POSTGRES)
     if platform == "telegram":
-        payload = {"message": {"text": user_test_input}, "from": {"id": 12345}}
-    elif platform == "messenger" or platform == "instagram":
+        payload = {
+            "message": {
+                "text": user_test_input,
+                "from": {"id": 12345, "first_name": "Tester", "is_bot": False},
+                "chat": {"id": 12345},
+                "date": int(time.time()),
+                "message_id": 999
+            }
+        }
+    elif platform in ["messenger", "instagram"]:
         payload = {"entry": [{"messaging": [{"message": {"text": user_test_input}}]}]}
     else:
         payload = {"prompt": user_test_input}
