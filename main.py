@@ -12,6 +12,20 @@ load_dotenv()
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def main():
+    platform = os.getenv("PLATFORM_TYPE", "telegram")
+
+    if platform == "telegram":
+        payload = {
+            "message": {"text": "What are the rules of badminton?"},
+            "from": {"id": 12345}
+        }
+    elif platform == "messenger":
+        payload = {
+            "entry": [{"messaging": [{"message": {"text": "Badminton rules please"}}]}]
+        }
+
+    response = requests.post(AGENT_WEBHOOK_URL, json=payload)
+    
     print("🚀 Script started successfully!")
 
     builder_github_username = os.getenv("GITHUB_ACTOR", "Unknown_Builder")
