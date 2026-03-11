@@ -2,5 +2,13 @@
   {
     "input": "in the sport badminton. Is it a fault if the player touches the net with their racket?",
     "expected_output": "Yes, it is a fault if the player, their racket, or their clothing touches the net or its supports during a rally."
+  },
+  {
+    "input": "What happens if the shuttlecock lands outside the boundary lines?",
+    "expected_output": "A shuttlecock landing outside the boundary lines is considered a fault. The rally ends and the opposing side scores a point."
+  },
+  {
+    "input": "How many points are required to win a standard game?",
+    "expected_output": "A standard game is played to 21 points. If the score ties at 20-all, a side must gain a two-point lead to win."
   }
 ]
