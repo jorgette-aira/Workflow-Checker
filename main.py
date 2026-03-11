@@ -12,7 +12,12 @@ load_dotenv()
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def main():
-    platform = os.getenv("PLATFORM_TYPE", "telegram")
+    AGENT_WEBHOOK_URL = os.getenv("N8N_AGENT_WEBHOOK_URL")
+    platform = os.getenv("PLATFORM_TYPE", "telegram") 
+
+    if not AGENT_WEBHOOK_URL:
+        print("❌ ERROR: N8N_AGENT_WEBHOOK_URL is not set in environment.")
+        return
 
     if platform == "telegram":
         payload = {
@@ -23,6 +28,12 @@ def main():
         payload = {
             "entry": [{"messaging": [{"message": {"text": "Badminton rules please"}}]}]
         }
+    elif platform == "instagram":
+        payload = {
+            "entry": [{"messaging": [{"message": {"text": "IG test message"}}]}]
+        }
+    else:
+        payload = {"prompt": "Default test message"}
 
     response = requests.post(AGENT_WEBHOOK_URL, json=payload)
     
