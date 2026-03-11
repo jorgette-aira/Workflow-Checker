@@ -1,6 +1,7 @@
 import os
-from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric, FaithfulnessMetric
+from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
+from deepeval.models.gpt_model import GPTModel 
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
@@ -19,7 +20,6 @@ def check_workflow_structure(workflow_data):
                     connected_nodes.add(connection.get("node"))
 
     orphans = all_node_names - connected_nodes
-
     has_agent = any("agent" in n.get("type", "").lower() for n in nodes)
     has_model = "ai_languageModel" in str(connections)
 
@@ -27,24 +27,24 @@ def check_workflow_structure(workflow_data):
         return False, "**Structure Error**: No AI Agent node found."
     if not has_model:
         return False, "**Structure Error**: AI Agent has no Model connected."
-    if orphans:
-        orphan_list = ", ".join(orphans)
     
     return True, "**Structure**: Correct (Agent & Model active)."
 
 def run_deepeval_metrics(agent_response, user_input, context):
-
     if not os.environ.get("OPENAI_API_KEY"):
         return False, "❌ Error: OPENAI_API_KEY is missing from environment."
-        
-    relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
-    hallucination_metric = HallucinationMetric(threshold=0.5)
+
+    fast_model = GPTModel(model_name="gpt-4o-mini")
+
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.7, model=fast_model)
+    hallucination_metric = HallucinationMetric(threshold=0.5, model=fast_model)
 
     tone_metric = GEval(
         name="Tone",
         criteria="Supportive, peer-like energy, and appropriate for a student collaborator.",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
-        threshold=0.7
+        threshold=0.7,
+        model=fast_model
     )
 
     test_case = LLMTestCase(
@@ -52,7 +52,7 @@ def run_deepeval_metrics(agent_response, user_input, context):
         actual_output=agent_response,
         context=context if isinstance(context, list) else [context]
     )
-    
+
     relevancy_metric.measure(test_case)
     tone_metric.measure(test_case)
     hallucination_metric.measure(test_case)
@@ -73,7 +73,6 @@ def run_deepeval_metrics(agent_response, user_input, context):
 
 def run_all_metrics(workflow_data, agent_response, expected_qa, user_input):
     struct_passed, struct_msg = check_workflow_structure(workflow_data)
-    
 
     deepeval_passed, deepeval_details = run_deepeval_metrics(
         agent_response=agent_response,
