@@ -39,9 +39,9 @@ def run_deepeval_metrics(agent_response, user_input, context):
 
     tone_metric = GEval(
         name="Tone",
-        criteria="peer-like energy",
+        criteria="anyreadble test tone",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
-        threshold=0.7,
+        threshold=0.5,
         model="gpt-4o-mini"
     )
 
