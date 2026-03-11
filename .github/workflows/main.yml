@@ -46,4 +46,5 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PLATFORM_TYPE: ${{matrix.platform }}
         run: python main.py
