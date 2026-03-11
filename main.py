@@ -1,10 +1,12 @@
 import os
 import time
 import asyncio
+import json
+import random
 import config
 import requests
 from dotenv import load_dotenv
-from telethon import TelegramClient, events
+from telethon import TelegramClient
 from metrics import run_all_metrics
 
 load_dotenv()
@@ -19,74 +21,75 @@ builder_github_username = os.getenv("GITHUB_ACTOR", "Unknown_Builder")
 user_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
 role_id = config.DEVOPS_ROLE_ID 
 
-# Test Data
-USER_TEST_INPUT = "How many players can play in badminton?"
-EXPECTED_QA_ANSWER = "If the shuttlecock lands outside the boundary lines, it is a 'fault.' The opponent wins the rally and earns a point."
-
-async def run_telegram_test():
-    print("🚀 Starting True End-to-End Telegram Test...")
-    
-    # Initialize the Telegram Client (saves login to 'qa_session.session')
+async def run_single_telegram_test(user_input):
+    print("🚀 Starting End-to-End Telegram Test...")
     client = TelegramClient('qa_session', API_ID, API_HASH)
     await client.start()
     
-    print(f"✅ Logged into Telegram successfully. Pinging {BOT_USERNAME}...")
-    
-    # A Future to hold the bot's response
-    bot_response_future = asyncio.Future()
-
-    # Event listener: Watch for a new message from the Bot
-    @client.on(events.NewMessage(chats=BOT_USERNAME))
-    async def handler(event):
-        bot_reply = event.message.text
-        bot_response_future.set_result(bot_reply)
-        await client.disconnect() # Disconnect once we get the answer
-
-    # Send the test question to the n8n bot
+    print(f"✅ Logged into Telegram. Sending message to {BOT_USERNAME}...")
     start_time = time.time()
-    await client.send_message(BOT_USERNAME, USER_TEST_INPUT)
-
-    try:
-        # Wait up to 60 seconds for n8n/AI to process and reply
-        actual_agent_response = await asyncio.wait_for(bot_response_future, timeout=60.0)
-    except asyncio.TimeoutError:
-        actual_agent_response = "Timeout: No response received from Agent within 60 seconds."
-        await client.disconnect()
-        
-    end_time = time.time()
-    agent_duration = round(end_time - start_time, 2)
-    print(f"🤖 Bot Answer: {actual_agent_response}")
-    print(f"⏱️ Response Time: {agent_duration}s")
     
-    return actual_agent_response, agent_duration
+    async with client.conversation(BOT_USERNAME, timeout=60.0) as conv:
+        await conv.send_message(user_input)
+        try:
+            response = await conv.get_response()
+            actual_answer = response.text
+        except asyncio.TimeoutError:
+            actual_answer = "Timeout: No response from Agent within 60 seconds."
+            
+    duration = round(time.time() - start_time, 2)
+    print(f"🤖 Bot Reply ({duration}s): {actual_answer}\n")
+    
+    await client.disconnect()
+    return actual_answer, duration
 
 def main():
-    # 1. Run the async Telegram test
     try:
-        actual_agent_response, agent_duration = asyncio.run(run_telegram_test())
+        with open("test_cases.json", "r", encoding="utf-8") as f:
+            test_cases = json.load(f)
+            
+        if not test_cases:
+            print("❌ Error: test_cases.json is empty.")
+            return
+            
+        selected_test = random.choice(test_cases)
+        
+        user_input = selected_test.get("input") 
+        expected_answer = selected_test.get("expected_output")
+        
+        print(f"🎲 Randomly selected question: '{user_input}'")
+        
+    except Exception as e:
+        print(f"❌ Failed to load test_cases.json: {e}")
+        return
+
+    try:
+        actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input))
     except Exception as e:
         print(f"❌ Telegram Error: {e}")
         return
 
-    # 2. Run Metrics
-    print("\n⚖️ Running DeepEval metrics...")
+    # Run DeepEval Metrics
+    print("⚖️ Running DeepEval metrics...")
     try:
-        import json
         with open("workflows/ai_agent_workflow.json", 'r', encoding="utf-8") as f:
             workflow_data = json.load(f)
+    except Exception:
+        workflow_data = {} 
 
+    try:
         passed, details = run_all_metrics(
             workflow_data, 
-            actual_agent_response, 
-            EXPECTED_QA_ANSWER, 
-            USER_TEST_INPUT
+            actual_answer, 
+            expected_answer, 
+            user_input
         )
     except Exception as e:
         passed = False
         details = f"**Metrics Error**: {str(e)}"
         print(f"❌ Error: {e}")
 
-    # 3. Send Final Notification
+    # Send Discord Notification
     mention_target = f"<@&{role_id}>" if passed else f"<@{user_id}>"
     payload_discord = {
         "status": "pass" if passed else "fail",
@@ -96,12 +99,13 @@ def main():
         "execution_time": f"{agent_duration}s" 
     }
 
-    print(f"\n📡 Sending results to Discord...")
-    try:
-        if NOTIFICATION_WEBHOOK_URL:
+    print(f"📡 Sending results to Discord...")
+    if NOTIFICATION_WEBHOOK_URL:
+        try:
             requests.post(NOTIFICATION_WEBHOOK_URL, json=payload_discord, timeout=30, verify=False)
-    except Exception as e:
-        print(f"❌ Notification failed: {e}")
+            print("✅ Notification sent successfully.")
+        except Exception as e:
+            print(f"❌ Notification failed: {e}")
 
 if __name__ == "__main__":
     main()
