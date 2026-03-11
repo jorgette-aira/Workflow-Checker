@@ -20,7 +20,7 @@ user_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
 role_id = config.DEVOPS_ROLE_ID 
 
 # Test Data
-USER_TEST_INPUT = "What happens if the shuttlecock lands outside the boundary lines?"
+USER_TEST_INPUT = "How many players can play in badminton?"
 EXPECTED_QA_ANSWER = "If the shuttlecock lands outside the boundary lines, it is a 'fault.' The opponent wins the rally and earns a point."
 
 async def run_telegram_test():
