@@ -1,7 +1,7 @@
 import os
 from deepeval.metrics import AnswerRelevancyMetric, GEval, HallucinationMetric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
-from deepeval.models.gpt_model import GPTModel 
+from deepeval.models import GPTModel 
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
@@ -34,17 +34,15 @@ def run_deepeval_metrics(agent_response, user_input, context):
     if not os.environ.get("OPENAI_API_KEY"):
         return False, "❌ Error: OPENAI_API_KEY is missing from environment."
 
-    fast_model = GPTModel(model_name="gpt-4o-mini")
-
-    relevancy_metric = AnswerRelevancyMetric(threshold=0.7, model=fast_model)
-    hallucination_metric = HallucinationMetric(threshold=0.5, model=fast_model)
+    relevancy_metric = AnswerRelevancyMetric(threshold=0.7, model="gpt-4o-mini")
+    hallucination_metric = HallucinationMetric(threshold=0.5, model="gpt-4o-mini")
 
     tone_metric = GEval(
         name="Tone",
-        criteria="Supportive, peer-like energy, and appropriate for a student collaborator.",
+        criteria="peer-like energy",
         evaluation_params=[LLMTestCaseParams.ACTUAL_OUTPUT],
         threshold=0.7,
-        model=fast_model
+        model="gpt-4o-mini"
     )
 
     test_case = LLMTestCase(
