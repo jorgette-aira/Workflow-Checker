@@ -69,7 +69,7 @@ def main():
 
         if N8N_API_KEY and WORKFLOW_ID:
             print(f"📡 Method: n8n API Mimic (Workflow #{WORKFLOW_ID})")
-            api_url = f"https://jorgette.tail3679cb.ts.net/api/v1/workflows/{WORKFLOW_ID}/run"
+            api_url = f"https://jorgette.tail3679cb.ts.net/api/v1/workflows/{WORKFLOW_ID}/executions"
             
             response = requests.post(api_url, json={"data": payload}, headers=headers, timeout=60, verify=False)
             response.raise_for_status()
