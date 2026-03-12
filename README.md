@@ -22,6 +22,7 @@ Workflow-Checker/
 
 ### Github Secrets Configurations
 | Secret Name | Description |
+```
 | `TELEGRAM_API_ID` | Your Telegram API ID (numbers only). |
 | `TELEGRAM_API_HASH` | Your Telegram API Hash string. |
 | `TELEGRAM_SESSION` | Telethon String Session for headless login. |
@@ -29,4 +30,5 @@ Workflow-Checker/
 | `OPENAI_API_KEY` | OpenAI API Key for DeepEval. |
 | `TS_OAUTH_CLIENT_ID` | Tailscale OAuth Client ID. |
 | `TS_OAUTH_SECRET` | Tailscale OAuth Secret. |
+```
 
