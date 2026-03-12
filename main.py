@@ -13,7 +13,6 @@ from metrics import run_all_metrics
 
 load_dotenv()
 
-# Core Configuration
 API_ID = int(os.getenv("TELEGRAM_API_ID", 0))
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION", "")
@@ -23,15 +22,11 @@ builder_github_username = os.getenv("GITHUB_ACTOR", "Unknown_Builder")
 user_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
 role_id = config.DEVOPS_ROLE_ID 
 
-# 👇 NEW: Dynamic GitHub Action Inputs (with safe local fallbacks)
 TRIGGER_TYPE = os.getenv("DYNAMIC_TRIGGER_TYPE", "Telegram")
 TARGET_ENDPOINT = os.getenv("DYNAMIC_TARGET_ENDPOINT", os.getenv("TELEGRAM_BOT_USERNAME"))
 WORKFLOW_PATH = os.getenv("DYNAMIC_WORKFLOW_FILE", "workflows/ai_agent_workflow.json")
 
 
-# ---------------------------------------------------------
-# 1. TELEGRAM TEST FUNCTION
-# ---------------------------------------------------------
 async def run_single_telegram_test(user_input, target_bot):
     print(f"🚀 Starting Telegram Test targeting {target_bot}...")
 
@@ -56,22 +51,17 @@ async def run_single_telegram_test(user_input, target_bot):
     return actual_answer, duration
 
 
-# ---------------------------------------------------------
-# 2. WEBHOOK TEST FUNCTION (NEW)
-# ---------------------------------------------------------
 def run_single_webhook_test(user_input, webhook_url):
     print(f"🚀 Sending POST request to Webhook: {webhook_url}")
     start_time = time.time()
     
     try:
-        # NOTE: If your n8n workflow expects a different JSON key instead of "chatInput", change it here!
         payload = {"chatInput": user_input} 
         response = requests.post(webhook_url, json=payload, timeout=60)
         response.raise_for_status()
         
         try:
             response_data = response.json()
-            # Try to grab "output", but fall back to the raw text if n8n returns a different format
             actual_answer = response_data.get("output", response.text) 
         except ValueError:
             actual_answer = response.text
@@ -84,9 +74,6 @@ def run_single_webhook_test(user_input, webhook_url):
     return actual_answer, duration
 
 
-# ---------------------------------------------------------
-# 3. MAIN CONTROLLER
-# ---------------------------------------------------------
 def main():
     passed = False
     error_type = "system"
@@ -108,7 +95,6 @@ def main():
         print(f"🎯 Target Endpoint: {TARGET_ENDPOINT} ({TRIGGER_TYPE})")
         print(f"📂 Evaluating against: {WORKFLOW_PATH}")
 
-        # 👇 NEW: Router logic to direct traffic based on the UI selection
         
         if TRIGGER_TYPE == "Telegram":
             actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input, TARGET_ENDPOINT))
@@ -120,7 +106,6 @@ def main():
         print("⚖️ Running DeepEval metrics...")
 
         try:
-            # 👇 NEW: Loading the dynamic workflow file
             with open(WORKFLOW_PATH, 'r', encoding="utf-8") as f:
                 workflow_data = json.load(f)
         except Exception as e:
