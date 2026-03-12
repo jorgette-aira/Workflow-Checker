@@ -13,7 +13,7 @@ from metrics import run_all_metrics
 
 load_dotenv()
 
-API_ID = int(os.getenv("TELEGRAM_API_ID" or 0))
+API_ID = int(os.getenv("TELEGRAM_API_ID") or 0)
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION", "")
 NOTIFICATION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", config.N8N_WEBHOOK_URL)
@@ -24,12 +24,9 @@ role_id = config.DEVOPS_ROLE_ID
 
 TRIGGER_TYPE = os.getenv("DYNAMIC_TRIGGER_TYPE", "Telegram")
 TARGET_ENDPOINT = os.getenv("DYNAMIC_TARGET_ENDPOINT", os.getenv("TELEGRAM_BOT_USERNAME"))
-WORKFLOW_PATH = os.getenv("DYNAMIC_WORKFLOW_FILE", "workflows/ai_agent_workflow.json")
-
 
 async def run_single_telegram_test(user_input, target_bot):
     print(f"🚀 Starting Telegram Test targeting {target_bot}...")
-
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.start()
     
@@ -46,10 +43,8 @@ async def run_single_telegram_test(user_input, target_bot):
             
     duration = round(time.time() - start_time, 2)
     print(f"🤖 Bot Reply ({duration}s): {actual_answer}\n")
-    
     await client.disconnect()
     return actual_answer, duration
-
 
 def run_single_webhook_test(user_input, webhook_url):
     print(f"🚀 Sending POST request to Webhook: {webhook_url}")
@@ -73,7 +68,6 @@ def run_single_webhook_test(user_input, webhook_url):
     print(f"🤖 Webhook Reply ({duration}s): {actual_answer}\n")
     return actual_answer, duration
 
-
 def main():
     passed = False
     error_type = "system"
@@ -93,9 +87,7 @@ def main():
         
         print(f"🎲 Randomly selected question: '{user_input}'")
         print(f"🎯 Target Endpoint: {TARGET_ENDPOINT} ({TRIGGER_TYPE})")
-        print(f"📂 Evaluating against: {WORKFLOW_PATH}")
 
-        
         if TRIGGER_TYPE == "Telegram":
             actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input, TARGET_ENDPOINT))
         elif TRIGGER_TYPE == "Webhook":
@@ -105,26 +97,15 @@ def main():
 
         print("⚖️ Running DeepEval metrics...")
 
-        try:
-            with open(WORKFLOW_PATH, 'r', encoding="utf-8") as f:
-                workflow_data = json.load(f)
-        except Exception as e:
-            print(f"⚠️ Could not load {WORKFLOW_PATH}: {e}")
-            workflow_data = {} 
-
         passed, metric_details = run_all_metrics(
-            workflow_data, 
+            {}, 
             actual_answer, 
             expected_answer, 
             user_input
         )
         
         details = metric_details
-
-        if passed:
-            error_type = "none"
-        else:
-            error_type = "metric"
+        error_type = "none" if passed else "metric"
 
     except Exception as e:
         print(f"🚨 SYSTEM CRASH: {e}")
