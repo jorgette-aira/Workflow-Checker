@@ -1,19 +1,32 @@
 name: AI Agent QA Automation
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      trigger_type:
+        description: 'How do we contact the agent?'
+        required: true
+        type: choice
+        options:
+          - Telegram
+          - Webhook
+      target_endpoint:
+        description: 'Bot Username (e.g., @MyBot) OR Webhook URL'
+        required: true
+        type: string
+      workflow_file:
+        description: 'Path to n8n workflow JSON'
+        required: true
+        type: string
+        default: 'workflows/ai_agent_workflow.json'
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [telegram, messenger, instagram]
-        
+    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4     
+        uses: actions/checkout@v4      
 
       - name: Tailscale
         uses: tailscale/github-action@v2
@@ -29,21 +42,28 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --update pip
           pip install -r requirements.txt
           
       - name: Verify Workflow File Existence
         run: |
-          if [ ! -f ./workflows/ai_agent_workflow.json ]; then
-            echo "ERROR: workflow file not found!"
+          if [ ! -f ./${{ github.event.inputs.workflow_file }} ]; then
+            echo "ERROR: workflow file ${{ github.event.inputs.workflow_file }} not found!"
             exit 1
           fi
 
       - name: Run Master Controller
         env:
+          DYNAMIC_TRIGGER_TYPE: ${{ github.event.inputs.trigger_type }}
+          DYNAMIC_TARGET_ENDPOINT: ${{ github.event.inputs.target_endpoint }}
+          DYNAMIC_WORKFLOW_FILE: ${{ github.event.inputs.workflow_file }}
+          
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_SESSION: ${{ secrets.TELEGRAM_SESSION }}
+          
           N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PLATFORM_TYPE: ${{matrix.platform }}
         run: python main.py
