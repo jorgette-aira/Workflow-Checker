@@ -94,7 +94,6 @@ def main():
         print("⚖️ Running DeepEval metrics...")
 
         passed, metric_details = run_all_metrics(
-            {}, 
             actual_answer, 
             expected_answer, 
             user_input
