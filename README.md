@@ -26,7 +26,7 @@ Workflow-Checker/
 | `TELEGRAM_API_ID` | Your Telegram API ID (numbers only). |
 | `TELEGRAM_API_HASH` | Your Telegram API Hash string. |
 | `TELEGRAM_SESSION` | Telethon String Session for headless login. |
-| `N8N_WEBHOOK_URL` | The **Production** URL for your n8n QA Logger. |
+| `N8N_WEBHOOK_URL` | The **Production** URL for your n8n workflow. |
 | `OPENAI_API_KEY` | OpenAI API Key for DeepEval. |
 | `TS_OAUTH_CLIENT_ID` | Tailscale OAuth Client ID. |
 | `TS_OAUTH_SECRET` | Tailscale OAuth Secret. |
