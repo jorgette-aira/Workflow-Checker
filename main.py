@@ -3,7 +3,7 @@ import time
 import asyncio
 import json
 import random
-import traceback
+import traceback 
 import config
 import requests
 from dotenv import load_dotenv
@@ -13,7 +13,6 @@ from metrics import run_all_metrics
 
 load_dotenv()
 
-# Environment Variables
 API_ID = int(os.getenv("TELEGRAM_API_ID", 0))
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME")
@@ -48,12 +47,11 @@ async def run_single_telegram_test(user_input):
     return actual_answer, duration
 
 def main():
-
     passed = False
-    error_type = "System"
+    error_type = "system"
     details = "Unknown system crash."
     agent_duration = 0
-    
+
     try:
         with open("test_cases.json", "r", encoding="utf-8") as f:
             test_cases = json.load(f)
@@ -69,27 +67,27 @@ def main():
         actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input))
 
         print("⚖️ Running DeepEval metrics...")
-   
-    try:
-        with open("workflows/ai_agent_workflow.json", 'r', encoding="utf-8") as f:
-            workflow_data = json.load(f)
-    except Exception:
-        workflow_data = {} 
 
-        passed, details = run_all_metrics(
+        try:
+            with open("workflows/ai_agent_workflow.json", 'r', encoding="utf-8") as f:
+                workflow_data = json.load(f)
+        except Exception:
+            workflow_data = {} 
+
+        passed, metric_details = run_all_metrics(
             workflow_data, 
             actual_answer, 
             expected_answer, 
             user_input
         )
-
+        
         details = metric_details
 
         if passed:
             error_type = "none"
         else:
             error_type = "metric"
-            
+
     except Exception as e:
         print(f"🚨 SYSTEM CRASH: {e}")
         passed = False
