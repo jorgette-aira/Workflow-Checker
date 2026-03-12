@@ -53,6 +53,6 @@ def run_all_metrics(agent_response, expected_qa, user_input):
     )
     
     overall_passed = deepeval_passed
-    full_report = f"{struct_msg}\n{deepeval_details}"
+    full_report = f"{deepeval_details}"
     
     return overall_passed, full_report
