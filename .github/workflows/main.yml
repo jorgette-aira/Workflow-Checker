@@ -14,11 +14,6 @@ on:
         description: 'Bot Username (e.g., @MyBot) OR Webhook URL'
         required: true
         type: string
-      workflow_file:
-        description: 'Path to n8n workflow JSON'
-        required: true
-        type: string
-        default: 'workflows/ai_agent_workflow.json'
 
 jobs:
   build-and-test:
@@ -44,13 +39,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-      - name: Verify Workflow File Existence
-        run: |
-          if [ ! -f ./${{ github.event.inputs.workflow_file }} ]; then
-            echo "ERROR: workflow file ${{ github.event.inputs.workflow_file }} not found!"
-            exit 1
-          fi
 
       - name: Run Master Controller
         env:
