@@ -50,24 +50,20 @@ def run_single_webhook_test(user_input, webhook_url):
     print(f"🚀 Sending POST request to Webhook: {webhook_url}")
     start_time = time.time()
     
+    payload = {"chatInput": user_input} 
+    response = requests.post(webhook_url, json=payload, timeout=60)
+    
+    response.raise_for_status() 
+    
     try:
-        payload = {"chatInput": user_input} 
-        response = requests.post(webhook_url, json=payload, timeout=60)
-        response.raise_for_status()
-        
-        try:
-            response_data = response.json()
-            actual_answer = response_data.get("output", response.text) 
-        except ValueError:
-            actual_answer = response.text
+        response_data = response.json()
+        actual_answer = response_data.get("output", response.text) 
+    except ValueError:
+        actual_answer = response.text
             
-    except Exception as e:
-        actual_answer = f"Webhook Error: {e}"
-        
     duration = round(time.time() - start_time, 2)
     print(f"🤖 Webhook Reply ({duration}s): {actual_answer}\n")
     return actual_answer, duration
-
 def main():
     passed = False
     error_type = "system"
