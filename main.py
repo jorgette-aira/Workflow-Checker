@@ -7,6 +7,7 @@ import config
 import requests
 from dotenv import load_dotenv
 from telethon import TelegramClient
+from telethon.sessions import StringSession
 from metrics import run_all_metrics
 
 load_dotenv()
@@ -15,6 +16,7 @@ load_dotenv()
 API_ID = int(os.getenv("TELEGRAM_API_ID", 0))
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME")
+SESSION_STRING = os.getenv("TELEGRAM_SESSION", "")
 NOTIFICATION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", config.N8N_WEBHOOK_URL)
 
 builder_github_username = os.getenv("GITHUB_ACTOR", "Unknown_Builder")
@@ -22,8 +24,9 @@ user_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
 role_id = config.DEVOPS_ROLE_ID 
 
 async def run_single_telegram_test(user_input):
-    print("🚀 Starting End-to-End Telegram Test...")
-    client = TelegramClient('qa_session', API_ID, API_HASH)
+    print("🚀 Starting Telegram Test...")
+
+    client = TelegramClient(StringSession(SESSION_STRING)API_ID, API_HASH)
     await client.start()
     
     print(f"✅ Logged into Telegram. Sending message to {BOT_USERNAME}...")
