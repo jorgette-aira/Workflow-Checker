@@ -19,6 +19,7 @@ Workflow-Checker/
 * **N8N:** Self-hosted or cloud instance with your workflow.
 * **Telegram Api:** 'API_ID' and 'API_HASH.
 * **OpenAI API Key:** Required for DeepEval and LLM-assisted grading.
+* **Tailscale:** OAuth Client ID and Secret for secure tunneling.
 
 ### Github Secrets Configurations
 | Secret Name | Description |
