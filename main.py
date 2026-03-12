@@ -15,7 +15,6 @@ load_dotenv()
 
 API_ID = int(os.getenv("TELEGRAM_API_ID", 0))
 API_HASH = os.getenv("TELEGRAM_API_HASH")
-BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION", "")
 NOTIFICATION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", config.N8N_WEBHOOK_URL)
 
@@ -23,16 +22,20 @@ builder_github_username = os.getenv("GITHUB_ACTOR", "Unknown_Builder")
 user_id = config.USER_MAP.get(builder_github_username, config.DEVOPS_ROLE_ID)
 role_id = config.DEVOPS_ROLE_ID 
 
-async def run_single_telegram_test(user_input):
-    print("🚀 Starting Telegram Test...")
+TRIGGER_TYPE = os.getenv("DYNAMIC_TRIGGER_TYPE", "Telegram")
+TARGET_ENDPOINT = os.getenv("DYNAMIC_TARGET_ENDPOINT", os.getenv("TELEGRAM_BOT_USERNAME"))
+WORKFLOW_PATH = os.getenv("DYNAMIC_WORKFLOW_FILE", "workflows/ai_agent_workflow.json")
+
+async def run_single_telegram_test(user_input, target_bot):
+    print(f"🚀 Starting Telegram Test targeting {target_bot}...")
 
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.start()
     
-    print(f"✅ Sending message to {BOT_USERNAME}...")
+    print(f"✅ Sending message to {target_bot}...")
     start_time = time.time()
     
-    async with client.conversation(BOT_USERNAME, timeout=60.0) as conv:
+    async with client.conversation(target_bot, timeout=60.0) as conv:
         await conv.send_message(user_input)
         try:
             response = await conv.get_response()
@@ -44,6 +47,28 @@ async def run_single_telegram_test(user_input):
     print(f"🤖 Bot Reply ({duration}s): {actual_answer}\n")
     
     await client.disconnect()
+    return actual_answer, duration
+
+def run_single_webhook_test(user_input, webhook_url):
+    print(f"🚀 Sending POST request to Webhook: {webhook_url}")
+    start_time = time.time()
+    
+    try:
+        payload = {"chatInput": user_input} 
+        response = requests.post(webhook_url, json=payload, timeout=60)
+        response.raise_for_status()
+        
+        try:
+            response_data = response.json()
+            actual_answer = response_data.get("output", response.text) 
+        except ValueError:
+            actual_answer = response.text
+            
+    except Exception as e:
+        actual_answer = f"Webhook Error: {e}"
+        
+    duration = round(time.time() - start_time, 2)
+    print(f"🤖 Webhook Reply ({duration}s): {actual_answer}\n")
     return actual_answer, duration
 
 def main():
@@ -62,16 +87,26 @@ def main():
         selected_test = random.choice(test_cases)
         user_input = selected_test.get("input") 
         expected_answer = selected_test.get("expected_output")
+        
         print(f"🎲 Randomly selected question: '{user_input}'")
+        print(f"🎯 Target Endpoint: {TARGET_ENDPOINT} ({TRIGGER_TYPE})")
+        print(f"📂 Evaluating against: {WORKFLOW_PATH}")
 
-        actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input))
+        [Image of flowchart showing routing logic splitting between a Telegram API module and an HTTP Webhook POST module]
+        if TRIGGER_TYPE == "Telegram":
+            actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input, TARGET_ENDPOINT))
+        elif TRIGGER_TYPE == "Webhook":
+            actual_answer, agent_duration = run_single_webhook_test(user_input, TARGET_ENDPOINT)
+        else:
+            raise ValueError(f"Unknown TRIGGER_TYPE selected: {TRIGGER_TYPE}")
 
         print("⚖️ Running DeepEval metrics...")
 
         try:
-            with open("workflows/ai_agent_workflow.json", 'r', encoding="utf-8") as f:
+            with open(WORKFLOW_PATH, 'r', encoding="utf-8") as f:
                 workflow_data = json.load(f)
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ Could not load {WORKFLOW_PATH}: {e}")
             workflow_data = {} 
 
         passed, metric_details = run_all_metrics(
@@ -92,28 +127,4 @@ def main():
         print(f"🚨 SYSTEM CRASH: {e}")
         passed = False
         error_type = "system"
-        crash_log = traceback.format_exc()
-        details = f"**Fatal System Exception:**\n```python\n{crash_log}\n```"
-
-    finally:
-        mention_target = f"<@&{role_id}>" if passed else f"<@{user_id}>"
-        
-        payload_discord = {
-            "status": "pass" if passed else "fail",
-            "error_type": error_type,
-            "builder_name": builder_github_username,
-            "mention_target": mention_target,
-            "test_results": details,
-            "execution_time": f"{agent_duration}s" 
-        }
-
-        print(f"📡 Sending results to Discord...")
-        if NOTIFICATION_WEBHOOK_URL:
-            try:
-                requests.post(NOTIFICATION_WEBHOOK_URL, json=payload_discord, timeout=30, verify=False)
-                print("✅ Notification sent successfully to n8n.")
-            except Exception as e:
-                print(f"❌ Notification failed: {e}")
-
-if __name__ == "__main__":
-    main()
+        crash_log = traceback.format
