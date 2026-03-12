@@ -26,7 +26,7 @@ role_id = config.DEVOPS_ROLE_ID
 async def run_single_telegram_test(user_input):
     print("🚀 Starting Telegram Test...")
 
-    client = TelegramClient(StringSession(SESSION_STRING)API_ID, API_HASH)
+    client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.start()
     
     print(f"✅ Logged into Telegram. Sending message to {BOT_USERNAME}...")
