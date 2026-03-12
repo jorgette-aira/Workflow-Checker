@@ -13,7 +13,7 @@ from metrics import run_all_metrics
 
 load_dotenv()
 
-API_ID = int(os.getenv("TELEGRAM_API_ID", 0))
+API_ID = int(os.getenv("TELEGRAM_API_ID" or 0))
 API_HASH = os.getenv("TELEGRAM_API_HASH")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION", "")
 NOTIFICATION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", config.N8N_WEBHOOK_URL)
