@@ -2,7 +2,7 @@
 
 ## Project Structure
 
-'''
+```
 Workflow-Checker/
 ├── main.py              # Master Controller; manages routing, execution and reporting
 ├── metrics.py         # Integration with Deepeval; contains scoring logic and metrics definitions
@@ -12,3 +12,4 @@ Workflow-Checker/
 ├── .github/             # CI/CD for Github Actions UI and automation
 │   ├── workflows/
 │   └── main.yml
+```
