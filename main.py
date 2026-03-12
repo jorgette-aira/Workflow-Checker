@@ -3,6 +3,7 @@ import time
 import asyncio
 import json
 import random
+import traceback
 import config
 import requests
 from dotenv import load_dotenv
@@ -29,7 +30,7 @@ async def run_single_telegram_test(user_input):
     client = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
     await client.start()
     
-    print(f"✅ Logged into Telegram. Sending message to {BOT_USERNAME}...")
+    print(f"✅ Sending message to {BOT_USERNAME}...")
     start_time = time.time()
     
     async with client.conversation(BOT_USERNAME, timeout=60.0) as conv:
@@ -47,68 +48,74 @@ async def run_single_telegram_test(user_input):
     return actual_answer, duration
 
 def main():
+
+    passed = False
+    error_type = "System"
+    details = "Unknown system crash."
+    agent_duration = 0
+    
     try:
         with open("test_cases.json", "r", encoding="utf-8") as f:
             test_cases = json.load(f)
             
         if not test_cases:
-            print("❌ Error: test_cases.json is empty.")
-            return
+            raise ValueError("test_cases.json is empty.")
             
         selected_test = random.choice(test_cases)
-        
         user_input = selected_test.get("input") 
         expected_answer = selected_test.get("expected_output")
-        
         print(f"🎲 Randomly selected question: '{user_input}'")
-        
-    except Exception as e:
-        print(f"❌ Failed to load test_cases.json: {e}")
-        return
 
-    try:
         actual_answer, agent_duration = asyncio.run(run_single_telegram_test(user_input))
-    except Exception as e:
-        print(f"❌ Telegram Error: {e}")
-        return
 
-    # Run DeepEval Metrics
-    print("⚖️ Running DeepEval metrics...")
+        print("⚖️ Running DeepEval metrics...")
+   
     try:
         with open("workflows/ai_agent_workflow.json", 'r', encoding="utf-8") as f:
             workflow_data = json.load(f)
     except Exception:
         workflow_data = {} 
 
-    try:
         passed, details = run_all_metrics(
             workflow_data, 
             actual_answer, 
             expected_answer, 
             user_input
         )
+
+        details = metric_details
+
+        if passed:
+            error_type = "none"
+        else:
+            error_type = "metric"
+            
     except Exception as e:
+        print(f"🚨 SYSTEM CRASH: {e}")
         passed = False
-        details = f"**Metrics Error**: {str(e)}"
-        print(f"❌ Error: {e}")
+        error_type = "system"
+        crash_log = traceback.format_exc()
+        details = f"**Fatal System Exception:**\n```python\n{crash_log}\n```"
 
-    # Send Discord Notification
-    mention_target = f"<@&{role_id}>" if passed else f"<@{user_id}>"
-    payload_discord = {
-        "status": "pass" if passed else "fail",
-        "builder_name": builder_github_username,
-        "mention_target": mention_target,
-        "test_results": details,
-        "execution_time": f"{agent_duration}s" 
-    }
+    finally:
+        mention_target = f"<@&{role_id}>" if passed else f"<@{user_id}>"
+        
+        payload_discord = {
+            "status": "pass" if passed else "fail",
+            "error_type": error_type,
+            "builder_name": builder_github_username,
+            "mention_target": mention_target,
+            "test_results": details,
+            "execution_time": f"{agent_duration}s" 
+        }
 
-    print(f"📡 Sending results to Discord...")
-    if NOTIFICATION_WEBHOOK_URL:
-        try:
-            requests.post(NOTIFICATION_WEBHOOK_URL, json=payload_discord, timeout=30, verify=False)
-            print("✅ Notification sent successfully.")
-        except Exception as e:
-            print(f"❌ Notification failed: {e}")
+        print(f"📡 Sending results to Discord...")
+        if NOTIFICATION_WEBHOOK_URL:
+            try:
+                requests.post(NOTIFICATION_WEBHOOK_URL, json=payload_discord, timeout=30, verify=False)
+                print("✅ Notification sent successfully to n8n.")
+            except Exception as e:
+                print(f"❌ Notification failed: {e}")
 
 if __name__ == "__main__":
     main()
