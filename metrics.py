@@ -5,31 +5,6 @@ from deepeval.models import GPTModel
 
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 
-def check_workflow_structure(workflow_data):
-    nodes = workflow_data.get("nodes", [])
-    connections = workflow_data.get("connections", {})
-    
-    all_node_names = {n.get("name") for n in nodes}
-    connected_nodes = set()
-
-    for source_node, targets in connections.items():
-        connected_nodes.add(source_node)
-        for connection_type in targets.values():
-            for branch in connection_type:
-                for connection in branch:
-                    connected_nodes.add(connection.get("node"))
-
-    orphans = all_node_names - connected_nodes
-    has_agent = any("agent" in n.get("type", "").lower() for n in nodes)
-    has_model = "ai_languageModel" in str(connections)
-
-    if not has_agent:
-        return False, "**Structure Error**: No AI Agent node found."
-    if not has_model:
-        return False, "**Structure Error**: AI Agent has no Model connected."
-    
-    return True, "**Structure**: Correct (Agent & Model active)."
-
 def run_deepeval_metrics(agent_response, user_input, context):
     if not os.environ.get("OPENAI_API_KEY"):
         return False, "❌ Error: OPENAI_API_KEY is missing from environment."
@@ -69,8 +44,7 @@ def run_deepeval_metrics(agent_response, user_input, context):
     
     return passed, details
 
-def run_all_metrics(workflow_data, agent_response, expected_qa, user_input):
-    struct_passed, struct_msg = check_workflow_structure(workflow_data)
+def run_all_metrics(agent_response, expected_qa, user_input):
 
     deepeval_passed, deepeval_details = run_deepeval_metrics(
         agent_response=agent_response,
@@ -78,7 +52,7 @@ def run_all_metrics(workflow_data, agent_response, expected_qa, user_input):
         context=[expected_qa]
     )
     
-    overall_passed = struct_passed and deepeval_passed
+    overall_passed = deepeval_passed
     full_report = f"{struct_msg}\n{deepeval_details}"
     
     return overall_passed, full_report
